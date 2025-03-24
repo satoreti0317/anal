@@ -5,7 +5,7 @@ local UIS = game:GetService("UserInputService")-- Made By Mick Gordon
 local WorldToViewportPoint = CurrentCam.WorldToViewportPoint
 local mouseLocation = UIS.GetMouseLocation
 
-game:GetService("StarterGui"):SetCore("SendNotification", {Title = "くりまんじゅう", Text = "楽しい！"})
+game:GetService("StarterGui"):SetCore("SendNotification", {Title = "さとれち", Text = "おっぱい触りたい！"})
 
 local DeleteMob ={
 	GUi = {
@@ -71,7 +71,7 @@ local Fov = Instance.new("ScreenGui")Fov.Name = "Fov" Fov.Parent = game.Players.
 local TracersG = Instance.new("ScreenGui")TracersG.Name = "Tracers" TracersG.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui") TracersG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling TracersG.ResetOnSpawn = false
 local FOVFFrame = Instance.new("Frame")FOVFFrame.Parent = Fov FOVFFrame.Name = "FOVFFrame" FOVFFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255) FOVFFrame.BorderColor3 = Color3.fromRGB(0, 0, 0) FOVFFrame.BorderSizePixel = 0 FOVFFrame.BackgroundTransparency = 1 FOVFFrame.AnchorPoint = Vector2.new(0.5, 0.5) FOVFFrame.Position = UDim2.new(0.5, 0,0.5, 0) FOVFFrame.Size = UDim2.new(0, DeleteMob.Aimbot.Fov, 0, DeleteMob.Aimbot.Fov) FOVFFrame.BackgroundTransparency = 1 
 local UICorner = Instance.new("UICorner")UICorner.CornerRadius = UDim.new(1, 0) UICorner.Parent = FOVFFrame -- Made By Mick Gordon
-local UIStroke = Instance.new("UIStroke")UIStroke.Color = Color3.fromRGB(100,0,100) UIStroke.Parent = FOVFFrame UIStroke.Thickness = 1 UIStroke.ApplyStrokeMode = "Border" game:GetService("StarterGui"):SetCore("SendNotification", {Title = "https://discord.gg/FsApQ7YNTq", Text = "The Discord For More!"})
+local UIStroke = Instance.new("UIStroke")UIStroke.Color = Color3.fromRGB(100,0,100) UIStroke.Parent = FOVFFrame UIStroke.Thickness = 1 UIStroke.ApplyStrokeMode = "Border" game:GetService("StarterGui"):SetCore("SendNotification", {Title = "おっぱい", Text = "自作のおてぃーと"})
 local BoxC = Instance.new("ScreenGui", game.Workspace) BoxC.Name = "Box"
 local Higlight = Instance.new("ScreenGui",game.Workspace)
 local connections = {}
