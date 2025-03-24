@@ -571,7 +571,7 @@ TextBox.Position = UDim2.new(0.791149139, 0, 0.0127403988, 0)
 TextBox.Size = UDim2.new(0, 200, 0, 23)
 TextBox.ClearTextOnFocus = false
 TextBox.Font = Enum.Font.Roboto
-TextBox.PlaceholderText = "Yuchaccha"
+TextBox.PlaceholderText = "Satoreti"
 TextBox.Text = "mame"
 TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 TextBox.TextSize = 14.000
@@ -585,7 +585,7 @@ Name.BorderSizePixel = 0
 Name.Position = UDim2.new(0.0178597774, 0, 0.00456260797, 0)
 Name.Size = UDim2.new(0, 200, 0, 31)
 Name.Font = Enum.Font.Gotham
-Name.Text = "Yucha Cheat Engine"
+Name.Text = "satoreti aimbot"
 Name.TextColor3 = Color3.fromRGB(17, 223, 255)
 Name.TextSize = 19.000
 
