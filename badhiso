@@ -14,7 +14,7 @@ local uiOpen = true
 local boxFrame = Instance.new("Frame")
 boxFrame.Size = UDim2.new(0, 250, 0, 350)
 boxFrame.Position = UDim2.new(1, -260, 0.5, -175)
-boxFrame.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+boxFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- 背景色を黒に変更
 boxFrame.BorderSizePixel = 0
 boxFrame.Active = true
 boxFrame.Draggable = true  -- ← これでドラッグ可能に！
@@ -26,8 +26,8 @@ toggleButton.Size = UDim2.new(0, 30, 0, 30)
 toggleButton.Position = UDim2.new(1, -35, 0, 5)
 toggleButton.AnchorPoint = Vector2.new(1, 0)
 toggleButton.Text = "▲"
-toggleButton.BackgroundColor3 = Color3.fromRGB(80, 80, 200)
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- ボタンの色を黒に変更
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
 toggleButton.Parent = boxFrame
 
 -- 📜 スクロールリスト
@@ -36,7 +36,9 @@ playerList.Size = UDim2.new(1, -20, 0, 240)
 playerList.Position = UDim2.new(0, 10, 0, 40)
 playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
 playerList.ScrollBarThickness = 8
-playerList.BackgroundTransparency = 1
+playerList.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- 背景色を黒に変更
+playerList.BackgroundTransparency = 0.5  -- ちょっと透明にして背景が見えるようにする
+playerList.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)  -- スクロールバーの色を白に変更
 playerList.Parent = boxFrame
 
 local UIListLayout = Instance.new("UIListLayout")
@@ -48,8 +50,8 @@ local refreshButton = Instance.new("TextButton")
 refreshButton.Size = UDim2.new(0.5, -5, 0, 40)
 refreshButton.Position = UDim2.new(0, 10, 0, 290)
 refreshButton.Text = "🔄 更新"
-refreshButton.BackgroundColor3 = Color3.fromRGB(150, 200, 255)
-refreshButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+refreshButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- 背景色を黒に変更
+refreshButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
 refreshButton.Parent = boxFrame
 
 -- ❌ リセットボタン
@@ -57,8 +59,8 @@ local resetButton = Instance.new("TextButton")
 resetButton.Size = UDim2.new(0.5, -5, 0, 40)
 resetButton.Position = UDim2.new(0.5, 5, 0, 290)
 resetButton.Text = "❌ リセット"
-resetButton.BackgroundColor3 = Color3.fromRGB(255, 150, 150)
-resetButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+resetButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- 背景色を黒に変更
+resetButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
 resetButton.Parent = boxFrame
 
 -- 👤 選択中ラベル
@@ -66,7 +68,7 @@ local selectedLabel = Instance.new("TextLabel")
 selectedLabel.Size = UDim2.new(1, -20, 0, 30)
 selectedLabel.Position = UDim2.new(0, 10, 0, 330)
 selectedLabel.BackgroundTransparency = 1
-selectedLabel.TextColor3 = Color3.new(1, 1, 1)
+selectedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
 selectedLabel.Text = "選択中: なし"
 selectedLabel.TextScaled = true
 selectedLabel.Parent = boxFrame
@@ -91,8 +93,8 @@ local function refreshPlayerList()
             local username = otherPlayer.Name
             button.Text = string.format("%s (%s)", displayName, username)
 
-            button.BackgroundColor3 = Color3.fromRGB(200, 200, 255)
-            button.TextColor3 = Color3.fromRGB(0, 0, 0)
+            button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- 背景色を黒に変更
+            button.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
             button.Parent = playerList
 
             button.MouseButton1Click:Connect(function()
