@@ -30,6 +30,17 @@ toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- ボタンの色�
 toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
 toggleButton.Parent = boxFrame
 
+-- ❌ UI削除ボタン（折りたたみボタンの横に配置）
+local deleteButton = Instance.new("TextButton")
+deleteButton.Size = UDim2.new(0, 30, 0, 30)
+deleteButton.Position = UDim2.new(1, -70, 0, 5)  -- 折りたたみボタンの横に配置
+deleteButton.AnchorPoint = Vector2.new(1, 0)
+deleteButton.Text = "×"
+deleteButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)  -- 赤色
+deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
+deleteButton.TextScaled = true
+deleteButton.Parent = boxFrame
+
 -- 📜 スクロールリスト
 local playerList = Instance.new("ScrollingFrame")
 playerList.Size = UDim2.new(1, -20, 0, 240)
@@ -129,6 +140,7 @@ local function updateUIVisibility()
     refreshButton.Visible = show
     resetButton.Visible = show
     selectedLabel.Visible = show
+    deleteButton.Visible = show
 
     if show then
         toggleButton.Text = "▲"
@@ -161,6 +173,12 @@ refreshButton.MouseButton1Click:Connect(refreshPlayerList)
 resetButton.MouseButton1Click:Connect(function()
     targetPlayer = nil
     selectedLabel.Text = "選択中: なし"
+end)
+
+-- UI削除ボタンがクリックされた場合にUIを削除
+deleteButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()  -- ScreenGui全体を削除
+    print("UIが削除されました。")
 end)
 
 -- 👥 プレイヤー入退出で更新
