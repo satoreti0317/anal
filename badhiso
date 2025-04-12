@@ -85,14 +85,19 @@ local function refreshPlayerList()
         if otherPlayer ~= player then
             local button = Instance.new("TextButton")
             button.Size = UDim2.new(1, 0, 0, 30)
-            button.Text = otherPlayer.Name
+
+            -- 🔹 表示名（ユーザー名）の形式にする
+            local displayName = otherPlayer.DisplayName
+            local username = otherPlayer.Name
+            button.Text = string.format("%s (%s)", displayName, username)
+
             button.BackgroundColor3 = Color3.fromRGB(200, 200, 255)
             button.TextColor3 = Color3.fromRGB(0, 0, 0)
             button.Parent = playerList
 
             button.MouseButton1Click:Connect(function()
                 targetPlayer = otherPlayer
-                selectedLabel.Text = "選択中: " .. targetPlayer.Name
+                selectedLabel.Text = "選択中: " .. displayName .. "（" .. username .. "）"
             end)
         end
     end
