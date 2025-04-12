@@ -10,198 +10,171 @@ local teleportDistance = 10
 local offsetY = 1
 local uiOpen = true
 
--- 🔵 メインフレーム
+-- フレーム作成
 local boxFrame = Instance.new("Frame")
 boxFrame.Size = UDim2.new(0, 250, 0, 350)
 boxFrame.Position = UDim2.new(1, -260, 0.5, -175)
-boxFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- 背景色を黒に変更
-boxFrame.BorderSizePixel = 0
+boxFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+boxFrame.BackgroundTransparency = 0.5
 boxFrame.Active = true
-boxFrame.Draggable = true  -- ← これでドラッグ可能に！
+boxFrame.Draggable = true
 boxFrame.Parent = screenGui
 
--- 🔽 折りたたみボタン
+-- 折りたたみボタン
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 30, 0, 30)
 toggleButton.Position = UDim2.new(1, -35, 0, 5)
 toggleButton.AnchorPoint = Vector2.new(1, 0)
 toggleButton.Text = "▲"
-toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- ボタンの色を黒に変更
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
+toggleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+toggleButton.TextColor3 = Color3.new(1, 1, 1)
+toggleButton.BackgroundTransparency = 0.5
 toggleButton.Parent = boxFrame
 
--- ❌ UI削除ボタン（折りたたみボタンの横に配置）
+-- UI削除ボタン
 local deleteButton = Instance.new("TextButton")
 deleteButton.Size = UDim2.new(0, 30, 0, 30)
-deleteButton.Position = UDim2.new(1, -70, 0, 5)  -- 折りたたみボタンの横に配置
+deleteButton.Position = UDim2.new(1, -70, 0, 5)
 deleteButton.AnchorPoint = Vector2.new(1, 0)
 deleteButton.Text = "×"
-deleteButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)  -- 赤色
-deleteButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
-deleteButton.TextScaled = true
+deleteButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+deleteButton.TextColor3 = Color3.new(1, 1, 1)
+deleteButton.BackgroundTransparency = 0.5
 deleteButton.Parent = boxFrame
 
--- 📜 スクロールリスト
+-- プレイヤーリスト
 local playerList = Instance.new("ScrollingFrame")
 playerList.Size = UDim2.new(1, -20, 0, 240)
 playerList.Position = UDim2.new(0, 10, 0, 40)
 playerList.CanvasSize = UDim2.new(0, 0, 0, 0)
 playerList.ScrollBarThickness = 8
-playerList.BackgroundColor3 = Color3.fromRGB(0, 0, 0)  -- 背景色を黒に変更
-playerList.BackgroundTransparency = 0.5  -- ちょっと透明にして背景が見えるようにする
-playerList.ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255)  -- スクロールバーの色を白に変更
+playerList.BackgroundColor3 = Color3.new(0, 0, 0)
+playerList.BackgroundTransparency = 0.5
+playerList.ScrollBarImageColor3 = Color3.new(1, 1, 1)
 playerList.Parent = boxFrame
 
 local UIListLayout = Instance.new("UIListLayout")
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Parent = playerList
 
--- 🔄 更新ボタン
+-- 更新ボタン
 local refreshButton = Instance.new("TextButton")
 refreshButton.Size = UDim2.new(0.5, -5, 0, 40)
 refreshButton.Position = UDim2.new(0, 10, 0, 290)
 refreshButton.Text = "🔄 更新"
-refreshButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- 背景色を黒に変更
-refreshButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
+refreshButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+refreshButton.TextColor3 = Color3.new(1, 1, 1)
+refreshButton.BackgroundTransparency = 0.5
 refreshButton.Parent = boxFrame
 
--- ❌ リセットボタン
+-- リセットボタン
 local resetButton = Instance.new("TextButton")
 resetButton.Size = UDim2.new(0.5, -5, 0, 40)
 resetButton.Position = UDim2.new(0.5, 5, 0, 290)
 resetButton.Text = "❌ リセット"
-resetButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- 背景色を黒に変更
-resetButton.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
+resetButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+resetButton.TextColor3 = Color3.new(1, 1, 1)
+resetButton.BackgroundTransparency = 0.5
 resetButton.Parent = boxFrame
 
--- 👤 選択中ラベル
+-- 選択ラベル
 local selectedLabel = Instance.new("TextLabel")
 selectedLabel.Size = UDim2.new(1, -20, 0, 30)
 selectedLabel.Position = UDim2.new(0, 10, 0, 330)
 selectedLabel.BackgroundTransparency = 1
-selectedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
+selectedLabel.TextColor3 = Color3.new(1, 1, 1)
 selectedLabel.Text = "選択中: なし"
 selectedLabel.TextScaled = true
 selectedLabel.Parent = boxFrame
 
-local mouse = player:GetMouse()
-local UserInputService = game:GetService("UserInputService")
-
--- 📋 プレイヤーリスト更新
+-- プレイヤーリストの更新関数
 local function refreshPlayerList()
-    for _, child in pairs(playerList:GetChildren()) do
-        if child:IsA("TextButton") then
-            child:Destroy()
-        end
-    end
-
-    for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            local button = Instance.new("TextButton")
-            button.Size = UDim2.new(1, 0, 0, 30)
-
-            -- 🔹 表示名（ユーザー名）の形式にする
-            local displayName = otherPlayer.DisplayName
-            local username = otherPlayer.Name
-            button.Text = string.format("%s (%s)", displayName, username)
-
-            button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)  -- 背景色を黒に変更
-            button.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストは白
-            button.Parent = playerList
-
-            button.MouseButton1Click:Connect(function()
-                targetPlayer = otherPlayer
-                selectedLabel.Text = "選択中: " .. displayName .. "（" .. username .. "）"
-            end)
-        end
-    end
-
-    task.wait()
-    playerList.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
+	for _, child in ipairs(playerList:GetChildren()) do
+		if child:IsA("TextButton") then child:Destroy() end
+	end
+	for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
+		if otherPlayer ~= player then
+			local button = Instance.new("TextButton")
+			button.Size = UDim2.new(1, 0, 0, 30)
+			button.Text = otherPlayer.DisplayName .. " (" .. otherPlayer.Name .. ")"
+			button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+			button.BackgroundTransparency = 0.5
+			button.TextColor3 = Color3.new(1, 1, 1)
+			button.Parent = playerList
+			button.MouseButton1Click:Connect(function()
+				targetPlayer = otherPlayer
+				selectedLabel.Text = "選択中: " .. button.Text
+			end)
+		end
+	end
+	playerList.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
 end
 
--- 🧲 テレポート
-local function teleportToSelf()
-    if teleportEnabled and targetPlayer then
-        local rootPart = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-        local playerRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-        if rootPart and playerRoot then
-            local forwardDirection = playerRoot.CFrame.LookVector
-            local targetPosition = playerRoot.Position + forwardDirection * teleportDistance + Vector3.new(0, offsetY, 0)
-            rootPart.CFrame = CFrame.new(targetPosition)
-        end
-    end
-end
-
--- 📦 折りたたみ処理
+-- UI表示切替
 local function updateUIVisibility()
-    local show = uiOpen
-    playerList.Visible = show
-    refreshButton.Visible = show
-    resetButton.Visible = show
-    selectedLabel.Visible = show
-    deleteButton.Visible = show
-
-    if show then
-        toggleButton.Text = "▲"
-        boxFrame.Size = UDim2.new(0, 250, 0, 370)
-    else
-        toggleButton.Text = "▼"
-        boxFrame.Size = UDim2.new(0, 250, 0, 40)
-    end
+	local show = uiOpen
+	playerList.Visible = show
+	refreshButton.Visible = show
+	resetButton.Visible = show
+	selectedLabel.Visible = show
+	deleteButton.Visible = show
+	boxFrame.Size = show and UDim2.new(0, 250, 0, 370) or UDim2.new(0, 250, 0, 40)
+	toggleButton.Text = show and "▲" or "▼"
 end
 
-toggleButton.MouseButton1Click:Connect(function()
-    uiOpen = not uiOpen
-    updateUIVisibility()
-end)
-
--- 🎮 マウス右クリックでテレポート
-mouse.Button2Down:Connect(function()
-    if targetPlayer then
-        teleportEnabled = true
-    end
-end)
-
-mouse.Button2Up:Connect(function()
-    teleportEnabled = false
-end)
-
--- 📦 ボタン動作
-refreshButton.MouseButton1Click:Connect(refreshPlayerList)
-
-resetButton.MouseButton1Click:Connect(function()
-    targetPlayer = nil
-    selectedLabel.Text = "選択中: なし"
-end)
-
--- UI削除ボタンがクリックされた場合にUIを削除
-deleteButton.MouseButton1Click:Connect(function()
-    screenGui:Destroy()  -- ScreenGui全体を削除
-    print("UIが削除されました。")
-end)
-
--- 👥 プレイヤー入退出で更新
+-- 入出時にリスト更新
 game.Players.PlayerAdded:Connect(refreshPlayerList)
 game.Players.PlayerRemoving:Connect(refreshPlayerList)
 
--- 🫀 毎フレームでテレポート処理
+-- テレポート関数
+local function teleportToSelf()
+	if teleportEnabled and targetPlayer then
+		local targetRoot = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+		local selfRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		if targetRoot and selfRoot then
+			targetRoot.CFrame = selfRoot.CFrame + selfRoot.CFrame.LookVector * teleportDistance + Vector3.new(0, offsetY, 0)
+		end
+	end
+end
+
+-- ボタン接続
+refreshButton.MouseButton1Click:Connect(refreshPlayerList)
+resetButton.MouseButton1Click:Connect(function()
+	targetPlayer = nil
+	selectedLabel.Text = "選択中: なし"
+end)
+toggleButton.MouseButton1Click:Connect(function()
+	uiOpen = not uiOpen
+	updateUIVisibility()
+end)
+deleteButton.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
+
+-- マウス操作
+local mouse = player:GetMouse()
+mouse.Button2Down:Connect(function()
+	if targetPlayer then teleportEnabled = true end
+end)
+mouse.Button2Up:Connect(function()
+	teleportEnabled = false
+end)
+
+-- 毎フレームテレポート
 game:GetService("RunService").Heartbeat:Connect(teleportToSelf)
 
--- ✅ 初期表示
+-- Uキーでオンオフ
+game:GetService("UserInputService").InputBegan:Connect(function(input, gp)
+	if not gp and input.KeyCode == Enum.KeyCode.U then
+		teleportEnabled = not teleportEnabled
+		print("テレポート機能: ", teleportEnabled and "オン" or "オフ")
+	end
+end)
+
+-- 初期表示
 updateUIVisibility()
 refreshPlayerList()
 
--- Uキーでテレポートのオン/オフを切り替え
-UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if gameProcessedEvent then return end
-
-    if input.KeyCode == Enum.KeyCode.U then
-        teleportEnabled = not teleportEnabled
-        if teleportEnabled then
-            print("テレポート機能がオンになりました。")
-        else
-            print("テレポート機能がオフになりました。")
         end
     end
 end)
