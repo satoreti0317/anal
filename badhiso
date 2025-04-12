@@ -74,6 +74,7 @@ selectedLabel.TextScaled = true
 selectedLabel.Parent = boxFrame
 
 local mouse = player:GetMouse()
+local UserInputService = game:GetService("UserInputService")
 
 -- 📋 プレイヤーリスト更新
 local function refreshPlayerList()
@@ -172,3 +173,17 @@ game:GetService("RunService").Heartbeat:Connect(teleportToSelf)
 -- ✅ 初期表示
 updateUIVisibility()
 refreshPlayerList()
+
+-- Uキーでテレポートのオン/オフを切り替え
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+
+    if input.KeyCode == Enum.KeyCode.U then
+        teleportEnabled = not teleportEnabled
+        if teleportEnabled then
+            print("テレポート機能がオンになりました。")
+        else
+            print("テレポート機能がオフになりました。")
+        end
+    end
+end)
