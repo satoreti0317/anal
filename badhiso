@@ -61,7 +61,7 @@ UIListLayout.Parent = playerList
 local refreshButton = Instance.new("TextButton")
 refreshButton.Size = UDim2.new(0.5, -5, 0, 40)
 refreshButton.Position = UDim2.new(0, 10, 0, 290)
-refreshButton.Text = "更新"
+refreshButton.Text = "🔄 更新"
 refreshButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 refreshButton.TextColor3 = Color3.new(1, 1, 1)
 refreshButton.BackgroundTransparency = 0.5
@@ -71,7 +71,7 @@ refreshButton.Parent = boxFrame
 local resetButton = Instance.new("TextButton")
 resetButton.Size = UDim2.new(0.5, -5, 0, 40)
 resetButton.Position = UDim2.new(0.5, 5, 0, 290)
-resetButton.Text = "remove"
+resetButton.Text = "❌ リセット"
 resetButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 resetButton.TextColor3 = Color3.new(1, 1, 1)
 resetButton.BackgroundTransparency = 0.5
@@ -174,7 +174,3 @@ end)
 -- 初期表示
 updateUIVisibility()
 refreshPlayerList()
-
-        end
-    end
-end)
