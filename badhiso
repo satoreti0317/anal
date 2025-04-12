@@ -2,19 +2,16 @@ local player = game.Players.LocalPlayer
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player.PlayerGui
 
-
 local teleportEnabled = false
-local targetPlayer = nil 
+local targetPlayer = nil
 local teleportDistance = 10
 local offsetY = 1
 
-
 local boxFrame = Instance.new("Frame")
 boxFrame.Size = UDim2.new(0, 250, 0, 150)
-boxFrame.Position = UDim2.new(0, 10, 0.5, -75)
+boxFrame.Position = UDim2.new(1, -260, 0.5, -75) -- 右真ん中に配置
 boxFrame.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
 boxFrame.Parent = screenGui
-
 
 local playerIdInput = Instance.new("TextBox")
 playerIdInput.Size = UDim2.new(0, 200, 0, 50)
@@ -24,9 +21,7 @@ playerIdInput.TextColor3 = Color3.fromRGB(0, 0, 0)
 playerIdInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 playerIdInput.Parent = boxFrame
 
-
 local mouse = player:GetMouse()
-
 
 local function findPlayerByIdOrName(idOrName)
     for _, otherPlayer in ipairs(game.Players:GetPlayers()) do
@@ -37,42 +32,34 @@ local function findPlayerByIdOrName(idOrName)
     return nil
 end
 
-
 local function teleportToSelf()
     if teleportEnabled and targetPlayer then
         local rootPart = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
         local playerRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if rootPart and playerRoot then
-            
             local forwardDirection = playerRoot.CFrame.LookVector
             local targetPosition = playerRoot.Position + forwardDirection * teleportDistance
-            
             targetPosition = targetPosition + Vector3.new(0, offsetY, 0)
-           
             rootPart.CFrame = CFrame.new(targetPosition)
         end
     end
 end
 
-
 mouse.Button2Down:Connect(function()
     if playerIdInput.Text ~= "" then
-       
         targetPlayer = findPlayerByIdOrName(playerIdInput.Text)
         if targetPlayer then
-            teleportEnabled = true 
+            teleportEnabled = true
         else
-            playerIdInput.Text = "プレイヤーが見つかりません" 
+            playerIdInput.Text = "プレイヤーが見つかりません"
         end
     end
 end)
 
-
 mouse.Button2Up:Connect(function()
-    teleportEnabled = false 
+    teleportEnabled = false
 end)
 
-
 game:GetService("RunService").Heartbeat:Connect(function()
-    teleportToSelf() 
+    teleportToSelf()
 end)
