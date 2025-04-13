@@ -357,6 +357,12 @@ function createMainUI()
 		end
 	end)
 
+	-- 10秒ごとに更新
+	while true do
+		refreshPlayerList()
+		wait(10) -- 10秒待機してから更新
+	end
+
 	refreshPlayerList()
 	updateUIVisibility()
 	updateOwnBounty()
