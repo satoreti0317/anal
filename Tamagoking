@@ -29,3 +29,28 @@ for _, part in pairs(workspace:GetDescendants()) do
         part.CanTouch = false
     end
 end
+-- プレイヤー情報を取得
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+-- ターゲット座標
+local targetPosition = Vector3.new(922.8, 250.3, 32858.8)
+
+-- ユーザー入力サービスを使ってキーの入力を処理
+local UserInputService = game:GetService("UserInputService")
+
+-- Gキーが押された時に指定された座標に飛ぶ処理
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    -- ゲームがその入力を処理している場合は何もしない
+    if gameProcessed then return end
+
+    -- Gキーが押されたかをチェック
+    if input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == Enum.KeyCode.G then
+        -- プレイヤーの位置を指定された座標に移動
+        humanoidRootPart.CFrame = CFrame.new(targetPosition)
+
+        -- キャラクターがその位置に留まるように、Humanoidの設定を調整
+        -- もしキャラクターが動く場合は、位置をロックする方法も考えられますが、通常はそのままで問題ないはずです。
+    end
+end)
