@@ -1,44 +1,28 @@
 -- LocalScript（StarterPlayerScripts に入れる）
 
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
-
--- UI作成
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "JumpGui"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = PlayerGui
-
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 140, 0, 60)
-frame.Position = UDim2.new(0.5, -70, 0, 20) -- 👈 上の方（上端から20px）
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BackgroundTransparency = 0.2
-frame.Active = true
-frame.Draggable = true
-frame.Parent = screenGui
-
-local jumpButton = Instance.new("TextButton")
-jumpButton.Size = UDim2.new(1, -10, 1, -10)
-jumpButton.Position = UDim2.new(0, 5, 0, 5)
-jumpButton.Text = "jump"
-jumpButton.BackgroundColor3 = Color3.fromRGB(100, 200, 255)
-jumpButton.TextColor3 = Color3.new(1, 1, 1)
-jumpButton.TextScaled = true
-jumpButton.Font = Enum.Font.GothamBold
-jumpButton.Parent = frame
 
 -- 超ジャンプ処理（めっちゃ高くジャンプ）
-jumpButton.MouseButton1Click:Connect(function()
-	local char = LocalPlayer.Character
-	if not char then return end
+local function performJump()
+    local char = LocalPlayer.Character
+    if not char then return end
 
-	local humanoid = char:FindFirstChildOfClass("Humanoid")
-	local root = char:FindFirstChild("HumanoidRootPart")
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
 
-	if humanoid and root then
-		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-		root.Velocity = Vector3.new(0, 500, 0)
-	end
+    if humanoid and root then
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        root.Velocity = Vector3.new(0, 500, 0)
+    end
+end
+
+-- Nキーを押したときにジャンプを実行
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+
+    if input.KeyCode == Enum.KeyCode.N then
+        performJump()
+    end
 end)
