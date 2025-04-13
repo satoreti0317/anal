@@ -1,65 +1,31 @@
-for _, part in pairs(workspace:GetDescendants()) do
-    if part:IsA("BasePart") and string.match(part.Name:lower(), "lava") then
-        part:Destroy()
-        print(part.Name .. " has been removed!")
-    end
-end
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
--- Lavaという名前のPartをすべて検索して削除するスクリプト
-
--- ワールド内のすべてのDescendant（子孫）をチェック
+-- Lavaという名前のPartをすべて検索して削除
 for _, obj in pairs(game:GetDescendants()) do
-    -- 名前が "lava" で、BasePart（Part, MeshPart など）かどうかを確認
-    if obj:IsA("BasePart") and obj.Name:lower() == "lava" then
-        print("削除: " .. obj:GetFullName())
-        obj:Destroy()
-    end
-end
-
--- 🔍 lavaという文字列を含むオブジェクト名を検索して削除
-for _, obj in pairs(workspace:GetDescendants()) do
-	if obj:IsA("BasePart") and string.lower(obj.Name):find("lava") then
+	if obj:IsA("BasePart") and obj.Name:lower() == "lava" then
+		print("削除: " .. obj:GetFullName())
 		obj:Destroy()
 	end
 end
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- 溶岩ダメージ無効化処理
-local function disableLavaDamage()
-	local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-
-	-- HumanoidのHealth減少を監視して強制リセット
-	local humanoid = character:WaitForChild("Humanoid", 5)
-	if humanoid then
-		humanoid.HealthChanged:Connect(function()
-			if humanoid.Health < humanoid.MaxHealth then
-				humanoid.Health = humanoid.MaxHealth
-			end
-		end)
+-- "lava" を含む名前のPartを削除
+for _, obj in pairs(workspace:GetDescendants()) do
+	if obj:IsA("BasePart") and obj.Name:lower():find("lava") then
+		obj:Destroy()
 	end
-
-	-- Lavaに触れてもダメージを受けないようにTouchイベント無効化
-	for _, part in pairs(workspace:GetDescendants()) do
-		if part:IsA("BasePart") and part.Name:lower():find("lava") then
-			part.CanTouch = false
-		end
-	end
-
-	-- 新たに追加されたlavaにも対応
-	workspace.DescendantAdded:Connect(function(desc)
-		if desc:IsA("BasePart") and desc.Name:lower():find("lava") then
-			desc.CanTouch = false
-		end
-	end)
 end
 
--- キャラリスポーン対応
-LocalPlayer.CharacterAdded:Connect(function()
-	task.wait(1)
-	disableLavaDamage()
+-- 新しく追加される lava の Touch を無効化
+workspace.DescendantAdded:Connect(function(desc)
+	if desc:IsA("BasePart") and desc.Name:lower():find("lava") then
+		desc.CanTouch = false
+	end
 end)
 
--- 初期呼び出し
-disableLavaDamage()
+-- 既にある lava Part の Touch を無効化
+for _, part in pairs(workspace:GetDescendants()) do
+	if part:IsA("BasePart") and part.Name:lower():find("lava") then
+		part.CanTouch = false
+	end
+end
