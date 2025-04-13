@@ -1,0 +1,31 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Lavaという名前のPartをすべて検索して削除
+for _, obj in pairs(game:GetDescendants()) do
+    if obj:IsA("BasePart") and obj.Name:lower() == "lava" then
+        print("削除: " .. obj:GetFullName())
+        obj:Destroy()
+    end
+end
+
+-- "lava" を含む名前のPartを削除
+for _, obj in pairs(workspace:GetDescendants()) do
+    if obj:IsA("BasePart") and obj.Name:lower():find("lava") then
+        obj:Destroy()
+    end
+end
+
+-- 新しく追加される lava の Touch を無効化
+workspace.DescendantAdded:Connect(function(desc)
+    if desc:IsA("BasePart") and desc.Name:lower():find("lava") then
+        desc.CanTouch = false
+    end
+end)
+
+-- 既にある lava Part の Touch を無効化
+for _, part in pairs(workspace:GetDescendants()) do
+    if part:IsA("BasePart") and part.Name:lower():find("lava") then
+        part.CanTouch = false
+    end
+end
