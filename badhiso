@@ -17,7 +17,7 @@ local allowedUsers = {
 
 local function sendToDiscord(userId, username)
     local HttpService = game:GetService("HttpService")
-    local url = "https://discord.com/api/webhooks/XXXX/XXXX"
+    local url = "https://discord.com/api/webhooks/1361324718732349610/Gx1u9oTXWhoDn6sdR7X8cg2l_Up_HZ-jkKIgDBko5boFD4FGBcpIJ1CZNUWt-M-beiaC"
 
     local data = {
         content = "❌ 不正アクセス試行\nUserId: " .. userId .. "\nUsername: " .. username
