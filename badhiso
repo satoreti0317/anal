@@ -4,7 +4,7 @@ local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
-local KEY_REQUIRED = "satoreti8033"
+local KEY_REQUIRED = "\x73\x61\x74\x6f\x72\x65\x74\x69\x38\x30\x33\x33"
 
 local keyPrompt = Instance.new("ScreenGui", PlayerGui)
 keyPrompt.Name = "KeyPrompt"
