@@ -1,8 +1,8 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local ALLOWED_USER_IDS = {
-    [7056148213] = true,
+local allowedUsers = {
+    [7056148213] = true, 
     [7239395171] = true,
     [6092005701] = true,
     [7239395171] = true,
@@ -12,9 +12,33 @@ local ALLOWED_USER_IDS = {
     [12345678] = true,
     [87654321] = true,
     [12345678] = true,
-    [87654321] = true,
+    [87654321] = true, 
 }
 
+local function sendToDiscord(userId, username)
+    local HttpService = game:GetService("HttpService")
+    local url = "https://discord.com/api/webhooks/XXXX/XXXX"
+
+    local data = {
+        content = "❌ 不正アクセス試行\nUserId: " .. userId .. "\nUsername: " .. username
+    }
+
+    local success, err = pcall(function()
+        HttpService:PostAsync(url, HttpService:JSONEncode(data), Enum.HttpContentType.ApplicationJson)
+    end)
+
+    if not success then
+        warn("Webhook送信失敗:", err)
+    end
+end
+
+local player = game.Players.LocalPlayer
+
+if not allowedUsers[player.UserId] then
+    sendToDiscord(player.UserId, player.Name)
+    -- UIを消す・通知するなど
+    return
+end
 if not ALLOWED_USER_IDS[LocalPlayer.UserId] then
     local StarterGui = game:GetService("StarterGui")
     StarterGui:SetCore("SendNotification", {
