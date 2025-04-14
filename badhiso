@@ -1,7 +1,6 @@
-local Players = game:GetService("Players")
 local allowedUserIds = {
-	7056148213, -- 
-	87654321, -- 
+	7056148213, -- あなたのUserId（例）
+	87654321, -- 他に許可したい人がいれば追加
 }
 
 local function isAuthorized(player)
@@ -19,6 +18,7 @@ if not isAuthorized(game.Players.LocalPlayer) then
 	return
 end
 
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
