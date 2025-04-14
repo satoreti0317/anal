@@ -4,10 +4,10 @@ local LocalPlayer = Players.LocalPlayer
 
 -- ✅ 許可されたUserIdリスト
 local ALLOWED_USER_IDS = {
-    [12345678] = true,
-    [87654321] = true,
-    [99999999] = true,
-    [12345678] = true,
+    [7056148213] = true,
+    [7239395171] = true,
+    [6092005701] = true,
+    [7239395171] = true,
     [87654321] = true,
     [12345678] = true,
     [87654321] = true,
