@@ -1,21 +1,22 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local ALLOWED_USER_IDS = {
-    [7056148213] = true,
-    [7239395171] = true,
-    [6092005701] = true,
-    [7239395171] = true,
-    [7258182195] = true,
-    [12345678] = true,
-    [87654321] = true,
-    [12345678] = true,
-    [87654321] = true,
-    [12345678] = true,
-    [87654321] = true,
+-- 各ユーザーに割り当てられたキー（例）
+local ALLOWED_KEYS = {
+    [7056148213] = "\x73\x61\x74\x6f\x72\x65\x74\x69
+",
+    [7239395171] = "\x73\x61\x74\x6f\x72\x65\x74\x69
+,
+    [6092005701] = "\x74\x61\x6d\x61\x67\x6f
+",
+    [7258182195] = "\x73\x61\x74\x6f\x72\x65\x74\x69
+",
+    [12345678]   = "abc123",
+    [87654321]   = "xyz987",
 }
 
-if not ALLOWED_USER_IDS[LocalPlayer.UserId] then
+-- アクセス制限（UserIdがリストにない場合拒否）
+if not ALLOWED_KEYS[LocalPlayer.UserId] then
     local StarterGui = game:GetService("StarterGui")
     StarterGui:SetCore("SendNotification", {
         Title = "アクセス拒否",
@@ -25,6 +26,10 @@ if not ALLOWED_USER_IDS[LocalPlayer.UserId] then
     })
     return
 end
+
+-- キー取得
+local REQUIRED_KEY = ALLOWED_KEYS[LocalPlayer.UserId]
+
 
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
@@ -103,7 +108,7 @@ messageLabel.Visible = false
 messageLabel.Parent = frame
 
 inputBox.FocusLost:Connect(function()
-	if inputBox.Text == KEY_REQUIRED then
+	if inputBox.Text == REQUIRED_KEY then
 		keyPrompt:Destroy()
 		createMainUI()
 	else
