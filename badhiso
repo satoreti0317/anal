@@ -1,10 +1,42 @@
+-- 必要なサービス
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+
+-- ✅ 許可されたUserIdリスト
+local ALLOWED_USER_IDS = {
+    [12345678] = true,
+    [87654321] = true,
+    [99999999] = true,
+    [12345678] = true,
+    [87654321] = true,
+    [12345678] = true,
+    [87654321] = true,
+    [12345678] = true,
+    [87654321] = true,
+    [12345678] = true,
+    [87654321] = true,
+}
+
+-- ❌ 許可されていないプレイヤーには警告を表示して終了
+if not ALLOWED_USER_IDS[LocalPlayer.UserId] then
+    local StarterGui = game:GetService("StarterGui")
+    StarterGui:SetCore("SendNotification", {
+        Title = "アクセス拒否",
+        Text = "スクリプトを購入してください",
+        Duration = 6,
+        Button1 = "了解"
+    })
+    return
+end
+
+-- ✅ 許可されていればUI処理続行
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-
 local KEY_REQUIRED = "\x73\x61\x74\x6f\x72\x65\x74\x69\x38\x30\x33\x33"
+
+
+
 
 local keyPrompt = Instance.new("ScreenGui", PlayerGui)
 keyPrompt.Name = "KeyPrompt"
