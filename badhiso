@@ -382,27 +382,6 @@ function createMainUI()
 		refreshPlayerList()
 		wait(10) -- 10秒待機してから更新
 	end
-local attempts = 0
-local maxAttempts = 3
-
-inputBox.FocusLost:Connect(function()
-	if sha256(inputBox.Text) == KEY_HASH then
-		keyPrompt:Destroy()
-		createMainUI()
-	else
-		attempts += 1
-		messageLabel.Text = "Invalid Key, try again. (" .. attempts .. "/" .. maxAttempts .. ")"
-		messageLabel.Visible = true
-		inputBox.Text = ""
-
-		if attempts >= maxAttempts then
-			messageLabel.Text = "Too many attempts. Please rejoin."
-			inputBox.Visible = false
-			wait(3)
-			game:Shutdown() -- またはkick
-		end
-	end
-end)
 
 	refreshPlayerList()
 	updateUIVisibility()
