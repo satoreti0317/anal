@@ -1,8 +1,6 @@
--- 必要なサービス
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- ✅ 許可されたUserIdリスト
 local ALLOWED_USER_IDS = {
     [7056148213] = true,
     [7239395171] = true,
@@ -17,7 +15,6 @@ local ALLOWED_USER_IDS = {
     [87654321] = true,
 }
 
--- ❌ 許可されていないプレイヤーには警告を表示して終了
 if not ALLOWED_USER_IDS[LocalPlayer.UserId] then
     local StarterGui = game:GetService("StarterGui")
     StarterGui:SetCore("SendNotification", {
@@ -29,7 +26,6 @@ if not ALLOWED_USER_IDS[LocalPlayer.UserId] then
     return
 end
 
--- ✅ 許可されていればUI処理続行
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
