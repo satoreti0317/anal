@@ -33,13 +33,6 @@ end
 local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
--- Healthの変化を無効にする
-humanoid.HealthChanged:Connect(function()
-	if humanoid.Health < humanoid.MaxHealth then
-		humanoid.Health = humanoid.MaxHealth
-	end
-end)
-
 -- 既存Lava Partに接触イベントがあれば削除
 for _, obj in pairs(workspace:GetDescendants()) do
 	if obj:IsA("BasePart") and obj.Name:lower():find("lava") then
