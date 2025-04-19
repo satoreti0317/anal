@@ -26,3 +26,70 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         performJump()
     end
 end)
+
+-- LocalScript（StarterPlayerScripts に入れる）
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+local activeVelocity = nil -- 現在の滑空BodyVelocity
+
+-- Qキー：飛行を即停止（BodyVelocity を削除）
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.Q then
+        if activeVelocity then
+            activeVelocity:Destroy()
+            activeVelocity = nil
+        end
+    end
+end)
+
+-- ジャンプ＋滑空処理（飛行中は無視）
+local function performJump()
+    -- 飛行中なら何もしない
+    if activeVelocity then return end
+
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if humanoid and root then
+        -- 通常ジャンプ（上方向へ）
+        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        RunService.Heartbeat:Wait()
+        root.Velocity = Vector3.new(0, 160, 0)
+
+        -- 少し遅れて前方へ滑空（1回のみ）
+        task.delay(0.1, function()
+            if root and root.Parent and not activeVelocity then
+                local bv = Instance.new("BodyVelocity")
+                bv.Name = "JumpGlide"
+                bv.Velocity = root.CFrame.LookVector * 400 + Vector3.new(0, 60, 0)
+                bv.MaxForce = Vector3.new(1e5, 0, 1e5)
+                bv.P = 3000
+                bv.Parent = root
+                activeVelocity = bv
+
+                -- 一定時間後に自動解除
+                task.delay(1.8, function()
+                    if bv == activeVelocity then
+                        bv:Destroy()
+                        activeVelocity = nil
+                    end
+                end)
+            end
+        end)
+    end
+end
+
+-- Mキーでジャンプ＆滑空（1回しか発動しないように）
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.M then
+        performJump()
+    end
+end)
