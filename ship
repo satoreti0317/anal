@@ -1,0 +1,156 @@
+-- StarterPlayer > StarterPlayerScripts に LocalScript を入れて、下記を貼り付け！
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- UIセットアップ
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "SeatListUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 400, 0, 320)
+MainFrame.Position = UDim2.new(0, 100, 0, 100)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+-- タイトルバー
+local TitleBar = Instance.new("Frame", MainFrame)
+TitleBar.Size = UDim2.new(1, 0, 0, 30)
+TitleBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+local TitleText = Instance.new("TextLabel", TitleBar)
+TitleText.Size = UDim2.new(1, -60, 1, 0)
+TitleText.Position = UDim2.new(0, 5, 0, 0)
+TitleText.Text = "🚤 空いてるボート座席リスト"
+TitleText.TextColor3 = Color3.new(1, 1, 1)
+TitleText.Font = Enum.Font.GothamBold
+TitleText.TextSize = 14
+TitleText.BackgroundTransparency = 1
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
+
+-- 折りたたみボタン
+local ToggleBtn = Instance.new("TextButton", TitleBar)
+ToggleBtn.Size = UDim2.new(0, 25, 0, 25)
+ToggleBtn.Position = UDim2.new(1, -30, 0, 2)
+ToggleBtn.Text = "-"
+ToggleBtn.Font = Enum.Font.GothamBold
+ToggleBtn.TextSize = 16
+ToggleBtn.TextColor3 = Color3.new(1, 1, 1)
+ToggleBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+
+-- スクロール
+local Scroll = Instance.new("ScrollingFrame", MainFrame)
+Scroll.Size = UDim2.new(1, -10, 1, -60)
+Scroll.Position = UDim2.new(0, 5, 0, 35)
+Scroll.BackgroundTransparency = 1
+Scroll.BorderSizePixel = 0
+Scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+Scroll.ScrollBarThickness = 6
+Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+
+local ListLayout = Instance.new("UIListLayout", Scroll)
+ListLayout.Padding = UDim.new(0, 5)
+ListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+-- 更新ボタン
+local RefreshButton = Instance.new("TextButton", MainFrame)
+RefreshButton.Size = UDim2.new(1, 0, 0, 25)
+RefreshButton.Position = UDim2.new(0, 0, 1, -25)
+RefreshButton.Text = "🔄 更新"
+RefreshButton.Font = Enum.Font.Gotham
+RefreshButton.TextSize = 14
+RefreshButton.TextColor3 = Color3.new(1, 1, 1)
+RefreshButton.BackgroundColor3 = Color3.fromRGB(60, 60, 100)
+
+-- 折りたたみ機能
+local isCollapsed = false
+ToggleBtn.MouseButton1Click:Connect(function()
+	isCollapsed = not isCollapsed
+	Scroll.Visible = not isCollapsed
+	RefreshButton.Visible = not isCollapsed
+	MainFrame.Size = isCollapsed and UDim2.new(0, 400, 0, 35) or UDim2.new(0, 400, 0, 320)
+	ToggleBtn.Text = isCollapsed and "+" or "-"
+end)
+
+-- ボート名抽出関数
+local function getBoatNameFromPath(seat)
+	local current = seat
+	while current and current.Parent do
+		if current.Parent == workspace:FindFirstChild("Boats") then
+			return current.Name
+		end
+		current = current.Parent
+	end
+	return seat.Name
+end
+
+-- アイテム生成（※コピー削除済）
+local function createSeatItem(seat)
+	local boatName = getBoatNameFromPath(seat)
+	local isDriver = seat:IsA("VehicleSeat")
+	local seatTypeText = isDriver and " (運転席)" or " (座席)"
+
+	local item = Instance.new("Frame")
+	item.Size = UDim2.new(1, -10, 0, 30)
+	item.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+	item.Parent = Scroll
+
+	local label = Instance.new("TextLabel", item)
+	label.Size = UDim2.new(1, -80, 1, 0)
+	label.Position = UDim2.new(0, 5, 0, 0)
+	label.Text = boatName .. seatTypeText
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.Font = Enum.Font.Gotham
+	label.TextSize = 13
+	label.BackgroundTransparency = 1
+	label.TextXAlignment = Enum.TextXAlignment.Left
+
+	local tpBtn = Instance.new("TextButton", item)
+	tpBtn.Size = UDim2.new(0, 70, 0, 24)
+	tpBtn.Position = UDim2.new(1, -75, 0.5, -12)
+	tpBtn.Text = "🚀 テレポ"
+	tpBtn.BackgroundColor3 = Color3.fromRGB(70, 120, 70)
+	tpBtn.TextColor3 = Color3.new(1, 1, 1)
+	tpBtn.Font = Enum.Font.Gotham
+	tpBtn.TextSize = 12
+
+	tpBtn.MouseButton1Click:Connect(function()
+		local char = LocalPlayer.Character
+		if char and char:FindFirstChild("HumanoidRootPart") then
+			char.HumanoidRootPart.CFrame = seat.CFrame + Vector3.new(0, 3, 0)
+		end
+	end)
+end
+
+-- 検出＋更新処理
+local function updateSeatList()
+	for _, child in ipairs(Scroll:GetChildren()) do
+		if child:IsA("Frame") then child:Destroy() end
+	end
+
+	local boatsFolder = workspace:FindFirstChild("Boats")
+	if not boatsFolder then return end
+
+	for _, obj in ipairs(boatsFolder:GetDescendants()) do
+		if (obj:IsA("Seat") or obj:IsA("VehicleSeat")) and not obj.Occupant then
+			createSeatItem(obj)
+		end
+	end
+end
+
+-- 初回＆ボタンで更新
+updateSeatList()
+RefreshButton.MouseButton1Click:Connect(updateSeatList)
+
+-- 自動更新（1秒ごと）
+task.spawn(function()
+	while true do
+		updateSeatList()
+		task.wait(1)
+	end
+end)
