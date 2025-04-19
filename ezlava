@@ -29,3 +29,38 @@ for _, part in pairs(workspace:GetDescendants()) do
 		part.CanTouch = false
 	end
 end
+
+local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Healthの変化を無効にする
+humanoid.HealthChanged:Connect(function()
+	if humanoid.Health < humanoid.MaxHealth then
+		humanoid.Health = humanoid.MaxHealth
+	end
+end)
+
+-- 既存Lava Partに接触イベントがあれば削除
+for _, obj in pairs(workspace:GetDescendants()) do
+	if obj:IsA("BasePart") and obj.Name:lower():find("lava") then
+		-- 安全のためすべての接触イベントをDisconnect
+		for _, conn in ipairs(getconnections(obj.Touched)) do
+			conn:Disable()
+		end
+		-- 物理的な接触も無効化
+		obj.CanTouch = false
+		obj.CanCollide = false -- 任意：通り抜け可能に
+	end
+end
+
+-- 新たに追加されるLavaに対しても処理を適用
+workspace.DescendantAdded:Connect(function(obj)
+	if obj:IsA("BasePart") and obj.Name:lower():find("lava") then
+		wait() -- 保険的な遅延
+		for _, conn in ipairs(getconnections(obj.Touched)) do
+			conn:Disable()
+		end
+		obj.CanTouch = false
+		obj.CanCollide = false
+	end
+end)
