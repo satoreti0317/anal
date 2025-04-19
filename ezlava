@@ -19,41 +19,33 @@ end
 -- 新しく追加される lava の Touch を無効化
 workspace.DescendantAdded:Connect(function(desc)
 	if desc:IsA("BasePart") and desc.Name:lower():find("lava") then
+		wait()
+		for _, conn in ipairs(getconnections(desc.Touched)) do
+			conn:Disable()
+		end
 		desc.CanTouch = false
+		desc.CanCollide = false
 	end
 end)
 
 -- 既にある lava Part の Touch を無効化
 for _, part in pairs(workspace:GetDescendants()) do
 	if part:IsA("BasePart") and part.Name:lower():find("lava") then
+		for _, conn in ipairs(getconnections(part.Touched)) do
+			conn:Disable()
+		end
 		part.CanTouch = false
+		part.CanCollide = false
 	end
 end
 
-local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
-
--- 既存Lava Partに接触イベントがあれば削除
-for _, obj in pairs(workspace:GetDescendants()) do
-	if obj:IsA("BasePart") and obj.Name:lower():find("lava") then
-		-- 安全のためすべての接触イベントをDisconnect
-		for _, conn in ipairs(getconnections(obj.Touched)) do
-			conn:Disable()
+-- サーバースクリプト内のLava関連スクリプトを削除
+for _, scr in pairs(game:GetDescendants()) do
+	if (scr:IsA("Script") or scr:IsA("ModuleScript")) and scr:IsDescendantOf(game) then
+		local src = scr.Source
+		if src and src:lower():find("touched") and src:lower():find("lava") then
+			warn("Lava処理スクリプト削除: " .. scr:GetFullName())
+			scr:Destroy()
 		end
-		-- 物理的な接触も無効化
-		obj.CanTouch = false
-		obj.CanCollide = false -- 任意：通り抜け可能に
 	end
 end
-
--- 新たに追加されるLavaに対しても処理を適用
-workspace.DescendantAdded:Connect(function(obj)
-	if obj:IsA("BasePart") and obj.Name:lower():find("lava") then
-		wait() -- 保険的な遅延
-		for _, conn in ipairs(getconnections(obj.Touched)) do
-			conn:Disable()
-		end
-		obj.CanTouch = false
-		obj.CanCollide = false
-	end
-end)
