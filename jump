@@ -36,19 +36,53 @@ local LocalPlayer = Players.LocalPlayer
 
 local activeVelocity = nil -- 現在の滑空BodyVelocity
 
--- Qキー：飛行を即停止（BodyVelocity を削除）
+-- 飛行停止処理
+local function stopFlight()
+    if activeVelocity then
+        activeVelocity:Destroy()
+        activeVelocity = nil
+    end
+end
+
+-- 停止キーリスト
+local stopKeys = {
+    [Enum.KeyCode.Q] = true,
+    [Enum.KeyCode.Z] = true,
+    [Enum.KeyCode.X] = true,
+    [Enum.KeyCode.C] = true,
+    [Enum.KeyCode.V] = true,
+    [Enum.KeyCode.F] = true,
+}
+
+-- 入力で飛行を停止
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if input.KeyCode == Enum.KeyCode.Q then
-        if activeVelocity then
-            activeVelocity:Destroy()
-            activeVelocity = nil
+    if stopKeys[input.KeyCode] then
+        stopFlight()
+    end
+end)
+
+-- 壁接触で滑空停止
+RunService.Heartbeat:Connect(function()
+    if activeVelocity then
+        local character = LocalPlayer.Character
+        if character and character:FindFirstChild("HumanoidRootPart") then
+            local root = character.HumanoidRootPart
+            local rayOrigin = root.Position
+            local rayDirection = root.CFrame.LookVector * 3 -- 少し前をチェック
+            local raycastParams = RaycastParams.new()
+            raycastParams.FilterDescendantsInstances = {character}
+            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+            local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+            if result and result.Instance and not result.Instance:IsDescendantOf(character) then
+                stopFlight()
+            end
         end
     end
 end)
 
 -- ジャンプ＋滑空処理（飛行中は無視）
 local function performJump()
-    -- 飛行中なら何もしない
     if activeVelocity then return end
 
     local character = LocalPlayer.Character
@@ -58,12 +92,10 @@ local function performJump()
     local root = character:FindFirstChild("HumanoidRootPart")
 
     if humanoid and root then
-        -- 通常ジャンプ（上方向へ）
         humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
         RunService.Heartbeat:Wait()
         root.Velocity = Vector3.new(0, 160, 0)
 
-        -- 少し遅れて前方へ滑空（1回のみ）
         task.delay(0.1, function()
             if root and root.Parent and not activeVelocity then
                 local bv = Instance.new("BodyVelocity")
@@ -74,11 +106,9 @@ local function performJump()
                 bv.Parent = root
                 activeVelocity = bv
 
-                -- 一定時間後に自動解除
                 task.delay(1.8, function()
                     if bv == activeVelocity then
-                        bv:Destroy()
-                        activeVelocity = nil
+                        stopFlight()
                     end
                 end)
             end
@@ -86,7 +116,7 @@ local function performJump()
     end
 end
 
--- Mキーでジャンプ＆滑空（1回しか発動しないように）
+-- Mキーでジャンプ＆滑空
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode.M then
