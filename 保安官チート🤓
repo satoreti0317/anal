@@ -1,4 +1,5 @@
--- 設定
+game.StarterGui:SetCore("SendNotification", {Title="さとれち様の保安官スクリプト"; Text="保安官チート起動🤓"; Duration=5;})
+
 _G.HeadSize = 100
 _G.Disabled = true
 
