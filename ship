@@ -121,6 +121,7 @@ local function createSeatItem(seat)
 	local distance = getDistance(seat.Position)
 
 	local item = Instance.new("Frame")
+	item.Name = "SeatItem_" .. tostring(math.random(1, 9999999))
 	item.Size = UDim2.new(1, -10, 0, 30)
 	item.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 	item.BackgroundTransparency = 0.4
