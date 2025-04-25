@@ -1,0 +1,81 @@
+-- 設定
+_G.HeadSize = 100
+_G.Disabled = true
+
+-- チーム別カラー
+local teamColors = {
+    ["Marines"] = Color3.fromRGB(0, 170, 255),
+    ["Pirates"] = Color3.fromRGB(255, 85, 85),
+    ["Default"] = Color3.fromRGB(255, 255, 255)
+}
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- ESP作成
+function addESP(player)
+    local char = player.Character
+    if not char then return end
+    if char:FindFirstChild("Head") and not char:FindFirstChild("NameESP") then
+        local esp = Instance.new("BillboardGui")
+        esp.Name = "NameESP"
+        esp.AlwaysOnTop = true
+        esp.Size = UDim2.new(0, 100, 0, 20)
+        esp.StudsOffset = Vector3.new(0, 2.5, 0)
+        esp.Adornee = char:FindFirstChild("Head")
+
+        local nameLabel = Instance.new("TextLabel", esp)
+        nameLabel.Size = UDim2.new(1, 0, 1, 0)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Text = player.Name
+        nameLabel.TextScaled = true
+        nameLabel.Font = Enum.Font.SourceSansBold
+        nameLabel.TextStrokeTransparency = 0.5
+
+        local color = teamColors[player.Team and player.Team.Name] or teamColors.Default
+        nameLabel.TextColor3 = color
+
+        esp.Parent = char
+    end
+end
+
+-- メイン処理
+RunService.RenderStepped:Connect(function()
+    if not _G.Disabled then return end
+
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            pcall(function()
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local humanoid = char and char:FindFirstChild("Humanoid")
+
+                if hrp and humanoid then
+                    addESP(player)
+
+                    local isSameTeam = player.Team == LocalPlayer.Team
+                    local isAlive = humanoid.Health > 0
+
+                    if isAlive and not isSameTeam then
+                        -- 生きてて敵チーム ➜ HITBOX表示
+                        hrp.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                        hrp.Transparency = 0.7
+                        hrp.CanCollide = false
+                        hrp.Material = Enum.Material.SmoothPlastic
+
+                        local color = teamColors[player.Team and player.Team.Name] or teamColors.Default
+                        hrp.Color = color
+                    else
+                        -- 死んでる or 同じチーム ➜ 元の状態に完全リセット
+                        hrp.Size = Vector3.new(2, 2, 1)
+                        hrp.Transparency = 0
+                        hrp.CanCollide = true
+                        hrp.Material = Enum.Material.Plastic
+                        hrp.Color = Color3.fromRGB(163, 162, 165) -- デフォルトの灰色
+                    end
+                end
+            end)
+        end
+    end
+end)
