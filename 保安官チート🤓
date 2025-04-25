@@ -102,8 +102,7 @@ if _G.infinJumpStarted == nil then
 	_G.infinJumpStarted = true
 	
 	--Notifies readiness
-	game.StarterGui:SetCore("SendNotification", {Title="WeAreDevs.net"; Text="The WeAreDevs Infinite Jump exploit is ready!"; Duration=5;})
-
+	game.StarterGui:SetCore("SendNotification", {Title="さとれち様の保安官スクリプト"; Text="保安官チート起動🤓"; Duration=5;})
 	--The actual infinite jump
 	local plr = game:GetService('Players').LocalPlayer
 	local m = plr:GetMouse()
