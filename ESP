@@ -1,0 +1,79 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+
+local function formatDistance(pos1, pos2)
+    local offset = Vector3.new(0, pos1.Y - pos2.Y, 0) -- Y方向差を除外してより自然な距離に
+    return math.floor(((pos1 - pos2) - offset).Magnitude) .. "m"
+end
+
+local function createESP(player)
+    if player == LocalPlayer then return end
+
+    local character = player.Character or player.CharacterAdded:Wait()
+    local head = character:WaitForChild("Head")
+    local humanoid = character:WaitForChild("Humanoid")
+    local hrp = character:WaitForChild("HumanoidRootPart")
+
+    -- プレイヤーのレベルを取得
+    local level = player:FindFirstChild("Data") and player.Data:FindFirstChild("Level") and player.Data.Level.Value or "N/A"
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "BloxESP"
+    billboard.Size = UDim2.new(0, 120, 0, 35)
+    billboard.StudsOffset = Vector3.new(0, 3.5, 0) -- ← 高さを上に調整
+    billboard.Adornee = head
+    billboard.AlwaysOnTop = true
+    billboard.Parent = character
+
+    -- 名前とレベル
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 0.6, 0)
+    nameLabel.Position = UDim2.new(0, 0, 0, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+    nameLabel.TextStrokeTransparency = 0
+    nameLabel.Font = Enum.Font.GothamBlack
+    nameLabel.TextScaled = true
+    nameLabel.Text = string.format("%s [Lv. %s]", player.Name, level)  -- 名前とレベルを表示
+    nameLabel.Parent = billboard
+
+    -- HP
+    local hpLabel = Instance.new("TextLabel")
+    hpLabel.Size = UDim2.new(1, 0, 0.4, 0)
+    hpLabel.Position = UDim2.new(0, 0, 0.6, 0)
+    hpLabel.BackgroundTransparency = 1
+    hpLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+    hpLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+    hpLabel.TextStrokeTransparency = 0
+    hpLabel.Font = Enum.Font.GothamBlack
+    hpLabel.TextScaled = true
+    hpLabel.Text = ""
+    hpLabel.Parent = billboard
+
+    -- 更新処理
+    RunService.RenderStepped:Connect(function()
+        if character and character.Parent and hrp then
+            local hp = math.floor(humanoid.Health)
+            local maxHp = math.floor(humanoid.MaxHealth)
+            hpLabel.Text = string.format("[%d/%d]", hp, maxHp)
+        else
+            billboard:Destroy()
+        end
+    end)
+end
+
+-- イベント接続
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        task.wait(1)
+        createESP(player)
+    end)
+end)
+
+for _, player in pairs(Players:GetPlayers()) do
+    if player ~= LocalPlayer and player.Character then
+        createESP(player)
+    end
+end
