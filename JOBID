@@ -1,0 +1,102 @@
+local TeleportService = game:GetService("TeleportService")
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local UserInputService = game:GetService("UserInputService")
+
+local PLACE_ID = 2753915549 -- Blox FruitsのPlaceIdなどに変更可
+
+-- UI作成
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "JobIdUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 320, 0, 200)
+frame.Position = UDim2.new(0.5, -160, 0.5, -100)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.BackgroundTransparency = 0.2
+frame.BorderSizePixel = 0
+frame.Active = true -- ドラッグに必要
+frame.Draggable = true -- ドラッグに必要
+frame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -35, 0, 5)
+closeButton.Text = "❌"
+closeButton.Font = Enum.Font.GothamBold
+closeButton.TextSize = 18
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+closeButton.Parent = frame
+
+local copyBtn = Instance.new("TextButton")
+copyBtn.Size = UDim2.new(1, -20, 0, 40)
+copyBtn.Position = UDim2.new(0, 10, 0, 40)
+copyBtn.Text = "📋 JobIdをコピー"
+copyBtn.Font = Enum.Font.GothamBold
+copyBtn.TextSize = 16
+copyBtn.TextColor3 = Color3.new(1,1,1)
+copyBtn.BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+copyBtn.Parent = frame
+
+local inputBox = Instance.new("TextBox")
+inputBox.Size = UDim2.new(1, -20, 0, 40)
+inputBox.Position = UDim2.new(0, 10, 0, 90)
+inputBox.PlaceholderText = "JobIdを入力"
+inputBox.Text = ""
+inputBox.Font = Enum.Font.Gotham
+inputBox.TextSize = 16
+inputBox.TextColor3 = Color3.new(1,1,1)
+inputBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+inputBox.ClearTextOnFocus = false
+inputBox.Parent = frame
+
+local joinBtn = Instance.new("TextButton")
+joinBtn.Size = UDim2.new(1, -20, 0, 40)
+joinBtn.Position = UDim2.new(0, 10, 0, 140)
+joinBtn.Text = "🚪 参加する"
+joinBtn.Font = Enum.Font.GothamBold
+joinBtn.TextSize = 16
+joinBtn.TextColor3 = Color3.new(1,1,1)
+joinBtn.BackgroundColor3 = Color3.fromRGB(60, 180, 90)
+joinBtn.Parent = frame
+
+-- コピー機能
+copyBtn.MouseButton1Click:Connect(function()
+	local jobId = game.JobId
+	if setclipboard then
+		setclipboard(jobId)
+		StarterGui:SetCore("SendNotification", {
+			Title = "コピー成功！",
+			Text = "JobIdをコピーしました。",
+			Duration = 3
+		})
+	else
+		warn("setclipboard未対応")
+	end
+end)
+
+-- テレポート機能
+joinBtn.MouseButton1Click:Connect(function()
+	local targetId = inputBox.Text
+	if targetId ~= "" then
+		TeleportService:TeleportToPlaceInstance(PLACE_ID, targetId, Players.LocalPlayer)
+	else
+		StarterGui:SetCore("SendNotification", {
+			Title = "エラー",
+			Text = "JobIdを入力してください",
+			Duration = 3
+		})
+	end
+end)
+
+-- UI削除
+closeButton.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
