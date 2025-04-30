@@ -1,79 +1,100 @@
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 
-local function formatDistance(pos1, pos2)
-    local offset = Vector3.new(0, pos1.Y - pos2.Y, 0) -- Y方向差を除外してより自然な距離に
-    return math.floor(((pos1 - pos2) - offset).Magnitude) .. "m"
+local LocalPlayer = Players.LocalPlayer
+local espStorage = {}
+
+local function createOrUpdateESP(player)
+	if player == LocalPlayer then return end
+
+	-- 古いESPを削除
+	if espStorage[player] and espStorage[player].Billboard then
+		espStorage[player].Billboard:Destroy()
+	end
+
+	local function attachESP()
+		local character = player.Character
+		if not character then return end
+
+		local head = character:FindFirstChild("Head")
+		local humanoid = character:FindFirstChild("Humanoid")
+		local hrp = character:FindFirstChild("HumanoidRootPart")
+		if not (head and humanoid and hrp) then return end
+
+		local level = "N/A"
+		if player:FindFirstChild("Data") and player.Data:FindFirstChild("Level") then
+			level = player.Data.Level.Value
+		end
+
+		local billboard = Instance.new("BillboardGui")
+		billboard.Name = "BloxESP"
+		billboard.Size = UDim2.new(0, 120, 0, 35)
+		billboard.StudsOffset = Vector3.new(0, 3.5, 0)
+		billboard.Adornee = head
+		billboard.AlwaysOnTop = true
+		billboard.Parent = character
+
+		local nameLabel = Instance.new("TextLabel")
+		nameLabel.Size = UDim2.new(1, 0, 0.6, 0)
+		nameLabel.Position = UDim2.new(0, 0, 0, 0)
+		nameLabel.BackgroundTransparency = 1
+		nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		nameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+		nameLabel.TextStrokeTransparency = 0
+		nameLabel.Font = Enum.Font.GothamBlack
+		nameLabel.TextScaled = true
+		nameLabel.Text = string.format("%s [Lv.%s]", player.Name, level)
+		nameLabel.Parent = billboard
+
+		local hpLabel = Instance.new("TextLabel")
+		hpLabel.Size = UDim2.new(1, 0, 0.4, 0)
+		hpLabel.Position = UDim2.new(0, 0, 0.6, 0)
+		hpLabel.BackgroundTransparency = 1
+		hpLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+		hpLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+		hpLabel.TextStrokeTransparency = 0
+		hpLabel.Font = Enum.Font.GothamBlack
+		hpLabel.TextScaled = true
+		hpLabel.Text = ""
+		hpLabel.Parent = billboard
+
+		-- 永続更新
+		if espStorage[player] and espStorage[player].Connection then
+			espStorage[player].Connection:Disconnect()
+		end
+
+		local connection = RunService.RenderStepped:Connect(function()
+			if humanoid and humanoid.Health > 0 then
+				hpLabel.Text = string.format("[%d/%d]", math.floor(humanoid.Health), math.floor(humanoid.MaxHealth))
+			else
+				hpLabel.Text = "[死亡]"
+			end
+		end)
+
+		espStorage[player] = {
+			Billboard = billboard,
+			Connection = connection,
+		}
+	end
+
+	-- キャラクターが存在していれば即ESPをつける
+	if player.Character then
+		attachESP()
+	end
+
+	-- リスポーン対応
+	player.CharacterAdded:Connect(function()
+		task.wait(1)
+		attachESP()
+	end)
 end
 
-local function createESP(player)
-    if player == LocalPlayer then return end
-
-    local character = player.Character or player.CharacterAdded:Wait()
-    local head = character:WaitForChild("Head")
-    local humanoid = character:WaitForChild("Humanoid")
-    local hrp = character:WaitForChild("HumanoidRootPart")
-
-    -- プレイヤーのレベルを取得
-    local level = player:FindFirstChild("Data") and player.Data:FindFirstChild("Level") and player.Data.Level.Value or "N/A"
-
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "BloxESP"
-    billboard.Size = UDim2.new(0, 120, 0, 35)
-    billboard.StudsOffset = Vector3.new(0, 3.5, 0) -- ← 高さを上に調整
-    billboard.Adornee = head
-    billboard.AlwaysOnTop = true
-    billboard.Parent = character
-
-    -- 名前とレベル
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, 0, 0.6, 0)
-    nameLabel.Position = UDim2.new(0, 0, 0, 0)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-    nameLabel.TextStrokeTransparency = 0
-    nameLabel.Font = Enum.Font.GothamBlack
-    nameLabel.TextScaled = true
-    nameLabel.Text = string.format("%s [Lv. %s]", player.Name, level)  -- 名前とレベルを表示
-    nameLabel.Parent = billboard
-
-    -- HP
-    local hpLabel = Instance.new("TextLabel")
-    hpLabel.Size = UDim2.new(1, 0, 0.4, 0)
-    hpLabel.Position = UDim2.new(0, 0, 0.6, 0)
-    hpLabel.BackgroundTransparency = 1
-    hpLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
-    hpLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-    hpLabel.TextStrokeTransparency = 0
-    hpLabel.Font = Enum.Font.GothamBlack
-    hpLabel.TextScaled = true
-    hpLabel.Text = ""
-    hpLabel.Parent = billboard
-
-    -- 更新処理
-    RunService.RenderStepped:Connect(function()
-        if character and character.Parent and hrp then
-            local hp = math.floor(humanoid.Health)
-            local maxHp = math.floor(humanoid.MaxHealth)
-            hpLabel.Text = string.format("[%d/%d]", hp, maxHp)
-        else
-            billboard:Destroy()
-        end
-    end)
-end
-
--- イベント接続
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function()
-        task.wait(1)
-        createESP(player)
-    end)
-end)
-
+-- 初期プレイヤー全員にESP
 for _, player in pairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer and player.Character then
-        createESP(player)
-    end
+	createOrUpdateESP(player)
 end
+
+-- 新しく入ったプレイヤーにもESP
+Players.PlayerAdded:Connect(function(player)
+	createOrUpdateESP(player)
+end)
