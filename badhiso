@@ -29,10 +29,7 @@ local ALLOWED_KEYS = {
 if not ALLOWED_KEYS[LocalPlayer.UserId] then
     local StarterGui = game:GetService("StarterGui")
     StarterGui:SetCore("SendNotification", {
-        Title = "アクセス拒否",
-        Text = "スクリプトを購入してください",
-        Duration = 6,
-        Button1 = "了解"
+        LocalPlayer:Kick("アクセスが拒否されました\nさとれちに問い合わせてください")
     })
     return
 end
