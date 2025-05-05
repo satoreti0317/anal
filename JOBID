@@ -1,4 +1,4 @@
-=local TeleportService = game:GetService("TeleportService")
+local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 
