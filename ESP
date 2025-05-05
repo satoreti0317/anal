@@ -3,7 +3,7 @@
 ]]
 
 --// Config
-getgenv().whscript = "溶岩"        --Change to the name of your script
+getgenv().whscript = "ESP"        --Change to the name of your script
 getgenv().webhookexecUrl = "https://discord.com/api/webhooks/1369004568981012733/5nela7MJUNBGbCjSU2OX1nPfR2mJ4QXr0x0fKrff62qlTgCk9AXcymVgXm4e_SGXUJVv"  --Put your Webhook Url here
 getgenv().ExecLogSecret = false                --decide to also log secret section
 
