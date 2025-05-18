@@ -226,8 +226,6 @@ local espStorage = {}
 
 local function createOrUpdateESP(player)
 	if player == LocalPlayer then return end
-
-	-- 古いESPを削除
 	if espStorage[player] and espStorage[player].Billboard then
 		espStorage[player].Billboard:Destroy()
 	end
@@ -258,12 +256,24 @@ local function createOrUpdateESP(player)
 		nameLabel.Size = UDim2.new(1, 0, 0.6, 0)
 		nameLabel.Position = UDim2.new(0, 0, 0, 0)
 		nameLabel.BackgroundTransparency = 1
-		nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 		nameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
 		nameLabel.TextStrokeTransparency = 0
 		nameLabel.Font = Enum.Font.GothamBlack
 		nameLabel.TextScaled = true
 		nameLabel.Text = string.format("%s [Lv.%s]", player.Name, level)
+
+		local myLevel = 0
+		if LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Level") then
+			myLevel = LocalPlayer.Data.Level.Value
+		end
+
+		local levelNum = tonumber(level)
+		if levelNum and math.abs(myLevel - levelNum) <= 612 then
+			nameLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+		else
+			nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+		end
+
 		nameLabel.Parent = billboard
 
 		local hpLabel = Instance.new("TextLabel")
@@ -278,7 +288,6 @@ local function createOrUpdateESP(player)
 		hpLabel.Text = ""
 		hpLabel.Parent = billboard
 
-		-- 永続更新
 		if espStorage[player] and espStorage[player].Connection then
 			espStorage[player].Connection:Disconnect()
 		end
@@ -297,24 +306,20 @@ local function createOrUpdateESP(player)
 		}
 	end
 
-	-- キャラクターが存在していれば即ESPをつける
 	if player.Character then
 		attachESP()
 	end
 
-	-- リスポーン対応
 	player.CharacterAdded:Connect(function()
 		task.wait(1)
 		attachESP()
 	end)
 end
 
--- 初期プレイヤー全員にESP
 for _, player in pairs(Players:GetPlayers()) do
 	createOrUpdateESP(player)
 end
 
--- 新しく入ったプレイヤーにもESP
 Players.PlayerAdded:Connect(function(player)
 	createOrUpdateESP(player)
 end)
