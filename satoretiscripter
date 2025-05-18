@@ -40,6 +40,9 @@ local scripts = {
 	["船れ妨害"]   = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/satoreti0317/anal/refs/heads/main/ship"))()
 	end,
+	["esp"]   = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/satoreti0317/anal/refs/heads/main/ESP"))()
+	end,
 }
 
 local player = game.Players.LocalPlayer
