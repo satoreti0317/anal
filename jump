@@ -29,97 +29,134 @@ end)
 
 -- LocalScript（StarterPlayerScripts に入れる）
 
-local Players = game:GetService("Players")
+-- サービス取得
+local Players          = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
+local RunService       = game:GetService("RunService")
+
 local LocalPlayer = Players.LocalPlayer
+local Camera      = workspace.CurrentCamera
 
-local activeVelocity = nil -- 現在の滑空BodyVelocity
+-- パラメータ
+local GLIDE_SPEED = 400      -- 水平方向速度
+local TIMEOUT     = 1.8      -- 自動停止までの秒数
 
--- 飛行停止処理
+-- 状態変数
+local activeVelocity = nil   -- 現在の BodyVelocity
+local glideDirection = nil   -- 固定された滑空方向（XZ）
+
+-- 水平ベクトル取得（Y=0）
+local function getFlatLookVector()
+    local v = Camera.CFrame.LookVector
+    local flat = Vector3.new(v.X, 0, v.Z)
+    if flat.Magnitude == 0 then
+        local char = LocalPlayer.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            flat = char.HumanoidRootPart.CFrame.LookVector
+            flat = Vector3.new(flat.X, 0, flat.Z)
+        else
+            flat = Vector3.new(0, 0, -1)
+        end
+    end
+    return flat.Unit
+end
+
+-- 飛行停止
 local function stopFlight()
     if activeVelocity then
         activeVelocity:Destroy()
         activeVelocity = nil
+        glideDirection = nil
     end
 end
 
--- 停止キーリスト
+-- 停止キー（任意のキーで中断可能）
 local stopKeys = {
-    [Enum.KeyCode.Q] = true,
-    [Enum.KeyCode.Z] = true,
-    [Enum.KeyCode.X] = true,
-    [Enum.KeyCode.C] = true,
-    [Enum.KeyCode.V] = true,
-    [Enum.KeyCode.F] = true,
+    [Enum.KeyCode.Q] = true, [Enum.KeyCode.Z] = true,
+    [Enum.KeyCode.X] = true, [Enum.KeyCode.C] = true,
+    [Enum.KeyCode.V] = true, [Enum.KeyCode.F] = true,
 }
 
--- 入力で飛行を停止
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
+UserInputService.InputBegan:Connect(function(input, gp)
     if stopKeys[input.KeyCode] then
         stopFlight()
     end
 end)
 
--- 壁接触で滑空停止
+-- Heartbeat：速度更新・壁判定
 RunService.Heartbeat:Connect(function()
-    if activeVelocity then
-        local character = LocalPlayer.Character
-        if character and character:FindFirstChild("HumanoidRootPart") then
-            local root = character.HumanoidRootPart
-            local rayOrigin = root.Position
-            local rayDirection = root.CFrame.LookVector * 3 -- 少し前をチェック
-            local raycastParams = RaycastParams.new()
-            raycastParams.FilterDescendantsInstances = {character}
-            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    if not activeVelocity or not glideDirection then return end
 
-            local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
-            if result and result.Instance and not result.Instance:IsDescendantOf(character) then
-                stopFlight()
-            end
-        end
+    local character = LocalPlayer.Character
+    if not (character and character:FindFirstChild("HumanoidRootPart")) then
+        stopFlight()
+        return
+    end
+    local root = character.HumanoidRootPart
+
+    -- XZ方向に移動（Yは維持）
+    activeVelocity.Velocity = glideDirection * GLIDE_SPEED
+
+    -- Raycast で前方に壁があれば停止
+    local result = workspace:Raycast(
+        root.Position,
+        glideDirection * 3,
+        RaycastParams.new()
+    )
+    if result and result.Instance and not result.Instance:IsDescendantOf(character) then
+        stopFlight()
     end
 end)
 
--- ジャンプ＋滑空処理（飛行中は無視）
+-- ジャンプ＋滑空開始（Mキー）
 local function performJump()
-    if activeVelocity then return end
+    -- 現在の滑空を中止して新しく開始
+    if activeVelocity then
+        stopFlight()
+    end
 
     local character = LocalPlayer.Character
-    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    if not (character and character:FindFirstChild("HumanoidRootPart")) then return end
 
     local humanoid = character:FindFirstChildOfClass("Humanoid")
-    local root = character:FindFirstChild("HumanoidRootPart")
+    local root     = character.HumanoidRootPart
 
-    if humanoid and root then
-        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-        RunService.Heartbeat:Wait()
-        root.Velocity = Vector3.new(0, 160, 0)
+    -- ジャンプで少し上昇
+    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    RunService.Heartbeat:Wait()
+    root.Velocity = Vector3.new(0, 160, 0)
 
-        task.delay(0.1, function()
-            if root and root.Parent and not activeVelocity then
-                local bv = Instance.new("BodyVelocity")
-                bv.Name = "JumpGlide"
-                bv.Velocity = root.CFrame.LookVector * 400 + Vector3.new(0, 60, 0)
-                bv.MaxForce = Vector3.new(1e5, 0, 1e5)
-                bv.P = 3000
-                bv.Parent = root
-                activeVelocity = bv
+    -- カメラの水平向きで滑空方向固定
+    glideDirection = getFlatLookVector()
 
-                task.delay(1.8, function()
-                    if bv == activeVelocity then
-                        stopFlight()
-                    end
-                end)
+    -- 少し遅れて滑空開始
+    task.delay(0.1, function()
+        if root.Parent == nil or activeVelocity ~= nil then return end
+
+        local bv = Instance.new("BodyVelocity")
+        bv.Name     = "JumpGlide"
+        bv.MaxForce = Vector3.new(1e5, 0, 1e5)
+        bv.P        = 3000
+        bv.Parent   = root
+        activeVelocity = bv
+
+        local thisBV = bv
+        task.delay(TIMEOUT, function()
+            if activeVelocity == thisBV then
+                stopFlight()
             end
         end)
-    end
+    end)
 end
 
--- Mキーでジャンプ＆滑空
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if gameProcessed then return end
+-- Mキーで実行
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
     if input.KeyCode == Enum.KeyCode.M then
+        performJump()
+    end
+end)
+
         performJump()
     end
 end)
