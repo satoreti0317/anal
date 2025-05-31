@@ -31,11 +31,7 @@ local scripts = {
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/satoreti0317/anal/refs/heads/main/ezlava"))()
 	end,
 	["redz"]   = function()
-		local Settings = {
-		    JoinTeam = "Pirates"; -- Pirates/Marines
-		    Translator = true; -- true/false
-		}
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/newredz/BloxFruits/refs/heads/main/Source.luau"))(Settings)
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/tlredz/Scripts/refs/heads/main/main.luau"))()
 	end,
 	["船れ妨害"]   = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/satoreti0317/anal/refs/heads/main/ship"))()
