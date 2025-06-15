@@ -1,6 +1,6 @@
 -- ローカルスクリプト
 
-local allowedUserIds = {12345678, 87654321} -- 許可されたユーザーのUserIdリスト
+local allowedUserIds = {7239772919, 87654321} -- 許可されたユーザーのUserIdリスト
 
 -- プレイヤーのUserIdが許可されたリストに含まれているか確認
 local player = game.Players.LocalPlayer
