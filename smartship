@@ -1,26 +1,7 @@
 -- ローカルスクリプト
 
-local allowedUserIds = {7239772919, 87654321} -- 許可されたユーザーのUserIdリスト
-
--- プレイヤーのUserIdが許可されたリストに含まれているか確認
 local player = game.Players.LocalPlayer
 
-local function isPlayerAllowed(player)
-    for _, id in pairs(allowedUserIds) do
-        if player.UserId == id then
-            return true
-        end
-    end
-    return false
-end
-
--- 許可されていないユーザーがスクリプトを実行した場合
-if not isPlayerAllowed(player) then
-    player:Kick("スクリプト配布やめて")
-    return
-end
-
--- 許可されたユーザーのみでスクリプトを実行
 local teleportPosition = Vector3.new(2295.94, 15.22, 909.98) -- 新しいテレポート先の座標
 
 -- UIを動的に作成
@@ -44,32 +25,26 @@ teleportButton.Parent = screenGui  -- ボタンをScreenGuiに追加
 teleportButton.MouseButton1Click:Connect(function()
     local character = player.Character or player.CharacterAdded:Wait()  -- プレイヤーのキャラクター
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  -- キャラクターの位置
-
-    -- プレイヤーを指定の座標にテレポート
     humanoidRootPart.CFrame = CFrame.new(teleportPosition)
 end)
 
 -- 次のテレポートボタンの作成
 local targetPosition = Vector3.new(938.00, 252.39, 32888.00) -- 2番目のテレポート先の座標
 
--- ScreenGuiの作成
 local screenGui2 = Instance.new("ScreenGui")
 screenGui2.Parent = playerGui
 
--- ボタンの作成
 local teleportButton2 = Instance.new("TextButton")
-teleportButton2.Size = UDim2.new(0, 200, 0, 50)  -- ボタンのサイズ
-teleportButton2.Position = UDim2.new(1, -225, 0, 25)  -- 画面の右上に配置、右端から25ピクセル分の余白を追加
-teleportButton2.Text = "幽霊船ゴー"  -- ボタンのテキスト
-teleportButton2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)  -- ボタンの色
-teleportButton2.TextColor3 = Color3.fromRGB(255, 255, 255)  -- テキストの色
-teleportButton2.Parent = screenGui2  -- ボタンをScreenGuiに追加
+teleportButton2.Size = UDim2.new(0, 200, 0, 50)
+teleportButton2.Position = UDim2.new(1, -225, 0, 25)
+teleportButton2.Text = "幽霊船ゴー"
+teleportButton2.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+teleportButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
+teleportButton2.Parent = screenGui2
 
--- ボタンがクリックされたときの処理
 teleportButton2.MouseButton1Click:Connect(function()
-    local character = player.Character or player.CharacterAdded:Wait()  -- プレイヤーのキャラクター
-    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")  -- キャラクターの位置
-
-    -- プレイヤーを指定の座標にテレポート
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     humanoidRootPart.CFrame = CFrame.new(targetPosition)
 end)
+
