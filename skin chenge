@@ -1,0 +1,31 @@
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+local TARGET_USER_ID = 12345678 -- ← ここに変えたいアバターのUserIdを入力
+
+local function applyAvatarFromUserId(userId)
+	local success, result = pcall(function()
+		return Players:GetHumanoidDescriptionFromUserId(userId)
+	end)
+
+	if success then
+		local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid:ApplyDescription(result)
+			print("アバターのスキンを適用しました。")
+		end
+	else
+		warn("アバターの取得に失敗しました：", result)
+	end
+end
+
+-- プレイヤーのキャラ生成時に自動適用
+Players.LocalPlayer.CharacterAdded:Connect(function()
+	applyAvatarFromUserId(TARGET_USER_ID)
+end)
+
+-- すでにキャラがある場合は即時適用
+if Players.LocalPlayer.Character then
+	applyAvatarFromUserId(TARGET_USER_ID)
+end
