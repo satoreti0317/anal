@@ -1,31 +1,32 @@
 local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
+local InsertService = game:GetService("InsertService")
 
-local TARGET_USER_ID = 4159185207 -- ← ここに変えたいアバターのUserIdを入力
+-- ★ここに使いたいアバター（バンドル）のIDを入力（例：Redcliff Knightなど）
+local BUNDLE_ID = 300926 -- これは「Knights of Redcliff」の例
 
-local function applyAvatarFromUserId(userId)
-	local success, result = pcall(function()
-		return Players:GetHumanoidDescriptionFromUserId(userId)
+local function applyBundleSkin(bundleId)
+	local success, description = pcall(function()
+		return InsertService:GetHumanoidDescriptionFromBundleId(bundleId)
 	end)
 
 	if success then
 		local character = Players.LocalPlayer.Character or Players.LocalPlayer.CharacterAdded:Wait()
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if humanoid then
-			humanoid:ApplyDescription(result)
-			print("アバターのスキンを適用しました。")
+			humanoid:ApplyDescription(description)
+			print("✅ バンドルのスキンを適用しました。")
 		end
 	else
-		warn("アバターの取得に失敗しました：", result)
+		warn("❌ バンドルの取得に失敗しました：", description)
 	end
 end
 
--- プレイヤーのキャラ生成時に自動適用
+-- キャラ生成時に自動でスキン適用
 Players.LocalPlayer.CharacterAdded:Connect(function()
-	applyAvatarFromUserId(TARGET_USER_ID)
+	applyBundleSkin(BUNDLE_ID)
 end)
 
 -- すでにキャラがある場合は即時適用
 if Players.LocalPlayer.Character then
-	applyAvatarFromUserId(TARGET_USER_ID)
+	applyBundleSkin(BUNDLE_ID)
 end
