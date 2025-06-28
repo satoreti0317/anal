@@ -1,7 +1,7 @@
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
-local TARGET_USER_ID = 12345678 -- ← ここに変えたいアバターのUserIdを入力
+local TARGET_USER_ID = 4159185207 -- ← ここに変えたいアバターのUserIdを入力
 
 local function applyAvatarFromUserId(userId)
 	local success, result = pcall(function()
