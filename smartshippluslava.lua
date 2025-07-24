@@ -12,37 +12,39 @@ screenGui.Name = "TeleportUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- Draggable container (includes title + content)
-local container = Instance.new("Frame")
-container.Size = UDim2.new(0, 230, 0, 130)
-container.Position = UDim2.new(0.5, -115, 0.3, 0)
-container.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-container.BorderSizePixel = 0
-container.Active = true
-container.Draggable = true
-container.Parent = screenGui
+-- Window frame
+local windowHeight = 130
+local collapsedHeight = 40
 
--- Top bar (Title + Toggle)
+local window = Instance.new("Frame")
+window.Size = UDim2.new(0, 230, 0, windowHeight)
+window.Position = UDim2.new(0.5, -115, 0.4, 0)
+window.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+window.BorderSizePixel = 0
+window.Active = true
+window.Draggable = true
+window.Parent = screenGui
+
+-- Top bar
 local topBar = Instance.new("Frame")
 topBar.Size = UDim2.new(1, 0, 0, 40)
 topBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 topBar.BorderSizePixel = 0
-topBar.Parent = container
+topBar.Parent = window
 
--- Title Text
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -40, 1, 0)
-titleLabel.Position = UDim2.new(0, 0, 0, 0)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "Teleport Menu"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-titleLabel.Font = Enum.Font.SourceSansBold
-titleLabel.TextSize = 18
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.PaddingLeft = UDim.new(0, 10)
-titleLabel.Parent = topBar
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -40, 1, 0)
+title.Position = UDim2.new(0, 0, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Teleport Menu"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
 
--- Toggle Button
+-- Toggle button
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 40, 1, 0)
 toggleButton.Position = UDim2.new(1, -40, 0, 0)
@@ -53,13 +55,13 @@ toggleButton.Font = Enum.Font.SourceSansBold
 toggleButton.TextSize = 24
 toggleButton.Parent = topBar
 
--- Content area
+-- Content
 local contentFrame = Instance.new("Frame")
 contentFrame.Size = UDim2.new(1, 0, 0, 90)
 contentFrame.Position = UDim2.new(0, 0, 0, 40)
 contentFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 contentFrame.BorderSizePixel = 0
-contentFrame.Parent = container
+contentFrame.Parent = window
 
 -- Cafe Button
 local cafeButton = Instance.new("TextButton")
@@ -90,7 +92,7 @@ local function teleportTo(position)
 	rootPart.CFrame = CFrame.new(position)
 end
 
--- Button logic
+-- Button actions
 cafeButton.MouseButton1Click:Connect(function()
 	teleportTo(teleportPositions.Cafe)
 end)
@@ -99,17 +101,18 @@ ghostButton.MouseButton1Click:Connect(function()
 	teleportTo(teleportPositions.GhostShip)
 end)
 
--- Toggle show/hide
+-- Toggle visibility
 local expanded = true
 local function updateUI()
 	if expanded then
-		container.Size = UDim2.new(0, 230, 0, 130)
+		window.Size = UDim2.new(0, 230, 0, windowHeight)
 		toggleButton.Text = "▲"
+		contentFrame.Visible = true
 	else
-		container.Size = UDim2.new(0, 230, 0, 40)
+		window.Size = UDim2.new(0, 230, 0, collapsedHeight)
 		toggleButton.Text = "▼"
+		contentFrame.Visible = false
 	end
-	contentFrame.Visible = expanded
 end
 
 toggleButton.MouseButton1Click:Connect(function()
@@ -117,5 +120,4 @@ toggleButton.MouseButton1Click:Connect(function()
 	updateUI()
 end)
 
--- Initial state
 updateUI()
