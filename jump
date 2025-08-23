@@ -223,6 +223,7 @@ local glideStopKeys = {
 	[Enum.KeyCode.C] = true,
 	[Enum.KeyCode.V] = true,
 	[Enum.KeyCode.F] = true,
+	[Enum.KeyCode.R] = true,
 }
 
 UserInputService.InputBegan:Connect(function(input)
