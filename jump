@@ -124,6 +124,6 @@ UserInputService.InputBegan:Connect(function(input)
 	elseif key == Enum.KeyCode.M then
 		startGlide()
 	elseif key == Enum.KeyCode. then
-		superJump()
+	-- superJump()  -- 無効化
 	end
 end)
