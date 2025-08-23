@@ -123,7 +123,7 @@ UserInputService.InputBegan:Connect(function(input)
 		stopGlide()
 	elseif key == Enum.KeyCode.M then
 		startGlide()
-	elseif key == Enum.KeyCode.N then
+	elseif key == Enum.KeyCode. then
 		superJump()
 	end
 end)
