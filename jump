@@ -62,26 +62,27 @@ local function startGlide()
 	local root     = char.HumanoidRootPart
 
 	humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-	RunService.Heartbeat:Wait()
-	root.Velocity = Vector3.new(0, 160, 0)
 
+	-- ★ 浮かばず、横にまっすぐ飛ぶ
 	glideDirection = flatLookVector()
 
-	task.delay(0.1, function()
-		if root.Parent == nil or activeVelocity then return end
-		local bv = Instance.new("BodyVelocity")
-		bv.Name     = "JumpGlide"
-		bv.MaxForce = Vector3.new(math.huge, 0, math.huge)
-		bv.P        = 3000
-		bv.Parent   = root
-		activeVelocity = bv
+	if root.Parent == nil or activeVelocity then return end
+	local bv = Instance.new("BodyVelocity")
+	bv.Name     = "JumpGlide"
+	bv.MaxForce = Vector3.new(math.huge, 0, math.huge)
+	bv.P        = 3000
+	bv.Parent   = root
+	activeVelocity = bv
 
-		local thisBV = bv
-		task.delay(GLIDE_TIMEOUT, function()
-			if activeVelocity == thisBV then
-				stopGlide()
-			end
-		end)
+	-- 最初から横に飛ぶ
+	activeVelocity.Velocity = glideDirection * GLIDE_SPEED
+
+	-- 一定時間で停止
+	local thisBV = bv
+	task.delay(GLIDE_TIMEOUT, function()
+		if activeVelocity == thisBV then
+			stopGlide()
+		end
 	end)
 end
 
