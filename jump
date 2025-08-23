@@ -116,6 +116,115 @@ local glideStopKeys = {
 	[Enum.KeyCode.F] = true,
 }
 
+UserInputService.InputBegan:Connect(function(input, processed)
+	-- デフォルトチャットの入力中は反応しない
+	if UserInputService:GetFocusedTextBox() then
+		return
+	end
+
+	local key = input.KeyCode
+	if glideStopKeys[key] then
+		stopGlide()
+	elseif key == Enum.KeyCode.M then
+		startGlide()
+	elseif key == Enum.KeyCode.N then
+		superJump()
+	end
+end)
+
+			flat = char.HumanoidRootPart.CFrame.LookVector
+			flat = Vector3.new(flat.X, 0, flat.Z)
+		else
+			flat = Vector3.new(0, 0, -1)
+		end
+	end
+	return flat.Unit
+end
+
+-- 滑空停止
+local function stopGlide()
+	if activeVelocity then
+		activeVelocity:Destroy()
+		activeVelocity = nil
+		glideDirection = nil
+	end
+end
+
+-- 超ジャンプ（Nキー）
+local function superJump()
+	stopGlide()
+	local char = LocalPlayer.Character
+	if not (char and char:FindFirstChild("HumanoidRootPart")) then return end
+	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	local root     = char.HumanoidRootPart
+	humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+	root.Velocity = Vector3.new(0, SUPER_JUMP_VELOCITY, 0)
+end
+
+-- 滑空開始（Mキー）
+local function startGlide()
+	stopGlide()
+
+	local char = LocalPlayer.Character
+	if not (char and char:FindFirstChild("HumanoidRootPart")) then return end
+	local humanoid = char:FindFirstChildOfClass("Humanoid")
+	local root     = char.HumanoidRootPart
+
+	humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+	RunService.Heartbeat:Wait()
+	root.Velocity = Vector3.new(0, 160, 0)
+
+	glideDirection = flatLookVector()
+
+	task.delay(0.1, function()
+		if root.Parent == nil or activeVelocity then return end
+		local bv = Instance.new("BodyVelocity")
+		bv.Name     = "JumpGlide"
+		bv.MaxForce = Vector3.new(math.huge, 0, math.huge)
+		bv.P        = 3000
+		bv.Parent   = root
+		activeVelocity = bv
+
+		local thisBV = bv
+		task.delay(GLIDE_TIMEOUT, function()
+			if activeVelocity == thisBV then
+				stopGlide()
+			end
+		end)
+	end)
+end
+
+-- Heartbeat更新
+RunService.Heartbeat:Connect(function()
+	if not (activeVelocity and glideDirection) then return end
+	local char = LocalPlayer.Character
+	if not (char and char:FindFirstChild("HumanoidRootPart")) then
+		stopGlide()
+		return
+	end
+	local root = char.HumanoidRootPart
+	activeVelocity.Velocity = glideDirection * GLIDE_SPEED
+
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = {char}
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	local result = workspace:Raycast(root.Position, glideDirection * 3, params)
+
+	if result and result.Instance and not result.Instance:IsDescendantOf(char) then
+		stopGlide()
+	end
+end)
+
+-- キー入力監視
+local glideStopKeys = {
+	[Enum.KeyCode.Q] = true,
+	[Enum.KeyCode.Z] = true,
+	[Enum.KeyCode.X] = true,
+	[Enum.KeyCode.C] = true,
+	[Enum.KeyCode.V] = true,
+	[Enum.KeyCode.F] = true,
+}
+
 UserInputService.InputBegan:Connect(function(input)
 	local key = input.KeyCode
 	if glideStopKeys[key] then
