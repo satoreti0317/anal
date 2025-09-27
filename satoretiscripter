@@ -9,7 +9,7 @@ local scripts = {
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/satoreti0317/anal/refs/heads/main/badhiso"))()
 	end,
 	["溶岩"]       = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/satoreti0317/anal/refs/heads/main/ezlava"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/satoreti0317/anal/refs/heads/main/lava"))()
 	end,
 	["ジャンプ"]   = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/satoreti0317/anal/refs/heads/main/jump"))()
