@@ -1,4 +1,4 @@
---// Bossだけ引き寄せ（Lv表示Boss判定 + ON/OFF + 折り畳み + 削除 + 半透明UI）
+--// Bossだけ引き寄せ（Lv表示Boss判定 + ON/OFF + 折り畳み + 削除 + 半透明UI + 特定ボス除外）
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -15,6 +15,23 @@ local uiOpen = true
 local radius = 10
 
 --====================
+-- ⭐ 除外したい敵の名前（小文字）
+--====================
+local EXCLUDE_NAMES = {
+	"terrorshark"
+}
+
+local function isExcluded(name)
+	name = string.lower(name or "")
+	for _, v in pairs(EXCLUDE_NAMES) do
+		if string.find(name, v) then
+			return true
+		end
+	end
+	return false
+end
+
+--====================
 -- UI作成（半透明）
 --====================
 local gui = Instance.new("ScreenGui")
@@ -26,16 +43,14 @@ local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0,180,0,80)
 frame.Position = UDim2.new(0,50,0,200)
 frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
-frame.BackgroundTransparency = 0.5 -- ⭐ 半透明
+frame.BackgroundTransparency = 0.5
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Draggable = true
 frame.Parent = gui
 
--- 角丸
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0,8)
 
--- タイトル
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1,-70,0,30)
 title.Position = UDim2.new(0,5,0,5)
@@ -45,7 +60,6 @@ title.TextColor3 = Color3.new(1,1,1)
 title.TextScaled = true
 title.Parent = frame
 
--- 折りたたみボタン
 local toggleUI = Instance.new("TextButton")
 toggleUI.Size = UDim2.new(0,30,0,30)
 toggleUI.Position = UDim2.new(1,-35,0,5)
@@ -55,7 +69,6 @@ toggleUI.BackgroundTransparency = 0.3
 toggleUI.TextColor3 = Color3.new(1,1,1)
 toggleUI.Parent = frame
 
--- 削除ボタン
 local deleteButton = Instance.new("TextButton")
 deleteButton.Size = UDim2.new(0,30,0,30)
 deleteButton.Position = UDim2.new(1,-70,0,5)
@@ -65,7 +78,6 @@ deleteButton.BackgroundTransparency = 0.2
 deleteButton.TextColor3 = Color3.new(1,1,1)
 deleteButton.Parent = frame
 
--- ON/OFFボタン
 local mainButton = Instance.new("TextButton")
 mainButton.Size = UDim2.new(1,-10,0,30)
 mainButton.Position = UDim2.new(0,5,0,40)
@@ -102,7 +114,7 @@ deleteButton.MouseButton1Click:Connect(function()
 end)
 
 --====================
--- Boss引き寄せ（Lv表示Boss）
+-- Boss引き寄せ（除外対応）
 --====================
 RunService.Heartbeat:Connect(function()
 	if not enabled then return end
@@ -115,7 +127,9 @@ RunService.Heartbeat:Connect(function()
 
 		if humanoid and hrp then
 			local displayName = string.lower(humanoid.DisplayName or "")
-			if string.find(displayName, "boss") then
+
+			-- Boss判定 + 除外チェック
+			if string.find(displayName, "boss") and not isExcluded(displayName) then
 				table.insert(bosses, enemy)
 			end
 		end
