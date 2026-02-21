@@ -1,0 +1,211 @@
+--// Bounty Scoreboard UI（折り畳み完全対応）
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+
+function createMainUI()
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "BountyScoreboardUI"
+	screenGui.ResetOnSpawn = false
+	screenGui.Parent = PlayerGui
+
+	-- メイン
+	local mainFrame = Instance.new("Frame")
+	mainFrame.Size = UDim2.new(0, 320, 0, 420)
+	mainFrame.Position = UDim2.new(1, -340, 0.3, 0)
+	mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	mainFrame.BackgroundTransparency = 0.3
+	mainFrame.BorderSizePixel = 0
+	mainFrame.Active = true
+	mainFrame.Draggable = true
+	mainFrame.Parent = screenGui
+
+	local fullSize = mainFrame.Size
+	local collapsedSize = UDim2.new(0, 320, 0, 40)
+	local uiOpen = true
+
+	-- ===== 上バー =====
+
+	local bountyLabel = Instance.new("TextLabel")
+	bountyLabel.Size = UDim2.new(1, -100, 0, 30)
+	bountyLabel.Position = UDim2.new(0, 10, 0, 5)
+	bountyLabel.BackgroundTransparency = 1
+	bountyLabel.TextColor3 = Color3.fromRGB(255,255,0)
+	bountyLabel.TextScaled = true
+	bountyLabel.Font = Enum.Font.SourceSansBold
+	bountyLabel.TextXAlignment = Enum.TextXAlignment.Left
+	bountyLabel.Text = "Bounty: 0"
+	bountyLabel.Parent = mainFrame
+
+	local toggleButton = Instance.new("TextButton")
+	toggleButton.Size = UDim2.new(0, 30, 0, 30)
+	toggleButton.Position = UDim2.new(1, -35, 0, 5)
+	toggleButton.AnchorPoint = Vector2.new(1,0)
+	toggleButton.Text = "▲"
+	toggleButton.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	toggleButton.TextColor3 = Color3.new(1,1,1)
+	toggleButton.Parent = mainFrame
+
+	local deleteButton = Instance.new("TextButton")
+	deleteButton.Size = UDim2.new(0, 30, 0, 30)
+	deleteButton.Position = UDim2.new(1, -70, 0, 5)
+	deleteButton.AnchorPoint = Vector2.new(1,0)
+	deleteButton.Text = "✖"
+	deleteButton.BackgroundColor3 = Color3.fromRGB(255,50,50)
+	deleteButton.TextScaled = true
+	deleteButton.TextColor3 = Color3.new(1,1,1)
+	deleteButton.Parent = mainFrame
+
+	-- ===== 中身まとめ用 =====
+	local contentFrame = Instance.new("Frame")
+	contentFrame.Size = UDim2.new(1,0,1,-40)
+	contentFrame.Position = UDim2.new(0,0,0,40)
+	contentFrame.BackgroundTransparency = 1
+	contentFrame.Parent = mainFrame
+
+	local header = Instance.new("TextLabel")
+	header.Size = UDim2.new(1, -20, 0, 30)
+	header.Position = UDim2.new(0, 10, 0, 0)
+	header.BackgroundTransparency = 1
+	header.Text = "名前 / ID / Lv / Bounty / 持ち物"
+	header.TextColor3 = Color3.new(1,1,1)
+	header.TextSize = 14
+	header.Font = Enum.Font.SourceSansBold
+	header.TextXAlignment = Enum.TextXAlignment.Left
+	header.Parent = contentFrame
+
+	local playerList = Instance.new("ScrollingFrame")
+	playerList.Size = UDim2.new(1, -20, 0, 180)
+	playerList.Position = UDim2.new(0, 10, 0, 30)
+	playerList.ScrollBarThickness = 6
+	playerList.BackgroundTransparency = 1
+	playerList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	playerList.Parent = contentFrame
+
+	local listLayout = Instance.new("UIListLayout")
+	listLayout.Parent = playerList
+
+	local itemLabel = Instance.new("TextLabel")
+	itemLabel.Size = UDim2.new(1, -20, 0, 50)
+	itemLabel.Position = UDim2.new(0, 10, 0, 220)
+	itemLabel.BackgroundTransparency = 1
+	itemLabel.TextColor3 = Color3.new(1,1,1)
+	itemLabel.TextScaled = true
+	itemLabel.TextWrapped = true
+	itemLabel.Text = "持ち物: "
+	itemLabel.Font = Enum.Font.SourceSansBold
+	itemLabel.Parent = contentFrame
+
+	local selectedLabel = Instance.new("TextLabel")
+	selectedLabel.Size = UDim2.new(1, -20, 0, 30)
+	selectedLabel.Position = UDim2.new(0, 10, 1, -80)
+	selectedLabel.BackgroundTransparency = 1
+	selectedLabel.TextColor3 = Color3.new(1,1,1)
+	selectedLabel.Text = "選択中: なし"
+	selectedLabel.TextScaled = true
+	selectedLabel.Parent = contentFrame
+
+	local refreshButton = Instance.new("TextButton")
+	refreshButton.Size = UDim2.new(0.5, -5, 0, 40)
+	refreshButton.Position = UDim2.new(0, 10, 1, -40)
+	refreshButton.Text = "更新"
+	refreshButton.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	refreshButton.TextColor3 = Color3.new(1,1,1)
+	refreshButton.Parent = contentFrame
+
+	local resetButton = Instance.new("TextButton")
+	resetButton.Size = UDim2.new(0.5, -5, 0, 40)
+	resetButton.Position = UDim2.new(0.5, 5, 1, -40)
+	resetButton.Text = "リセット"
+	resetButton.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	resetButton.TextColor3 = Color3.new(1,1,1)
+	resetButton.Parent = contentFrame
+
+	-- ===== 機能 =====
+
+	local targetPlayer = nil
+	local teleportEnabled = false
+
+	local function getTools(player)
+		local items = {}
+		local bp = player:FindFirstChild("Backpack")
+		if bp then
+			for _, tool in ipairs(bp:GetChildren()) do
+				if tool:IsA("Tool") then
+					table.insert(items, tool.Name)
+				end
+			end
+		end
+		return table.concat(items,", ")
+	end
+
+	local function refreshPlayerList()
+		for _,v in pairs(playerList:GetChildren()) do
+			if v:IsA("TextButton") then v:Destroy() end
+		end
+
+		for _,p in ipairs(Players:GetPlayers()) do
+			if p ~= LocalPlayer then
+				local button = Instance.new("TextButton")
+				button.Size = UDim2.new(1,0,0,30)
+				button.Text = p.DisplayName.." / "..p.Name
+				button.BackgroundTransparency = 0.4
+				button.BackgroundColor3 = Color3.fromRGB(30,30,30)
+				button.TextColor3 = Color3.new(1,1,1)
+				button.Parent = playerList
+
+				button.MouseButton1Click:Connect(function()
+					targetPlayer = p
+					selectedLabel.Text = "選択中: "..p.DisplayName
+					itemLabel.Text = "持ち物: "..getTools(p)
+					teleportEnabled = true
+				end)
+			end
+		end
+	end
+
+	RunService.Heartbeat:Connect(function()
+		if teleportEnabled and targetPlayer then
+			local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+			local targetRoot = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+			if root and targetRoot then
+				targetRoot.CFrame = root.CFrame * CFrame.new(0,0,-10)
+			end
+		end
+	end)
+
+	-- ===== 折り畳み =====
+	toggleButton.MouseButton1Click:Connect(function()
+		uiOpen = not uiOpen
+
+		if uiOpen then
+			mainFrame.Size = fullSize
+			contentFrame.Visible = true
+			toggleButton.Text = "▲"
+		else
+			mainFrame.Size = collapsedSize
+			contentFrame.Visible = false
+			toggleButton.Text = "▼"
+		end
+	end)
+
+	deleteButton.MouseButton1Click:Connect(function()
+		screenGui:Destroy()
+	end)
+
+	refreshButton.MouseButton1Click:Connect(refreshPlayerList)
+
+	resetButton.MouseButton1Click:Connect(function()
+		targetPlayer = nil
+		teleportEnabled = false
+		selectedLabel.Text = "選択中: なし"
+		itemLabel.Text = "持ち物: "
+	end)
+
+	refreshPlayerList()
+end
+
+createMainUI()
