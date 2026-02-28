@@ -1,12 +1,25 @@
---// Bossだけ引き寄せ（Lv表示Boss判定 + ON/OFF + 折り畳み + 削除 + 半透明UI + 特定ボス除外）
+--// Bossだけ引き寄せ（死亡対応版）
+-- StarterPlayerScripts に入れる
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
-local char = player.Character or player.CharacterAdded:Wait()
-local root = char:WaitForChild("HumanoidRootPart")
+
+local char
+local root
+
+--====================
+-- ⭐ キャラ更新（←これが修正ポイント）
+--====================
+local function updateCharacter(character)
+	char = character
+	root = char:WaitForChild("HumanoidRootPart")
+end
+
+updateCharacter(player.Character or player.CharacterAdded:Wait())
+player.CharacterAdded:Connect(updateCharacter)
 
 local enemiesFolder = workspace:WaitForChild("Enemies")
 
@@ -15,7 +28,7 @@ local uiOpen = true
 local radius = 10
 
 --====================
--- ⭐ 除外したい敵の名前（小文字）
+-- ⭐ 除外したい敵の名前
 --====================
 local EXCLUDE_NAMES = {
 	"terrorshark"
@@ -32,7 +45,7 @@ local function isExcluded(name)
 end
 
 --====================
--- UI作成（半透明）
+-- UI作成
 --====================
 local gui = Instance.new("ScreenGui")
 gui.Parent = playerGui
@@ -88,17 +101,13 @@ mainButton.BackgroundTransparency = 0.3
 mainButton.TextColor3 = Color3.new(1,1,1)
 mainButton.Parent = frame
 
---====================
 -- ON/OFF
---====================
 mainButton.MouseButton1Click:Connect(function()
 	enabled = not enabled
 	mainButton.Text = "Boss Pull : " .. (enabled and "ON" or "OFF")
 end)
 
---====================
 -- 折り畳み
---====================
 toggleUI.MouseButton1Click:Connect(function()
 	uiOpen = not uiOpen
 	mainButton.Visible = uiOpen
@@ -106,18 +115,17 @@ toggleUI.MouseButton1Click:Connect(function()
 	toggleUI.Text = uiOpen and "▲" or "▼"
 end)
 
---====================
 -- 削除
---====================
 deleteButton.MouseButton1Click:Connect(function()
 	gui:Destroy()
 end)
 
 --====================
--- Boss引き寄せ（除外対応）
+-- Boss引き寄せ（死亡対応）
 --====================
 RunService.Heartbeat:Connect(function()
 	if not enabled then return end
+	if not root or not root.Parent then return end -- ←死亡対策
 
 	local bosses = {}
 
@@ -128,14 +136,11 @@ RunService.Heartbeat:Connect(function()
 		if humanoid and hrp then
 			local displayName = string.lower(humanoid.DisplayName or "")
 
-			-- Boss判定 + 除外チェック
 			if string.find(displayName, "boss") and not isExcluded(displayName) then
 				table.insert(bosses, enemy)
 			end
 		end
 	end
-
-	if #bosses == 0 then return end
 
 	for i, boss in ipairs(bosses) do
 		local angle = (i / #bosses) * math.pi * 2
