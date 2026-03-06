@@ -1,16 +1,16 @@
 -- key.lua
--- スタイリッシュUI + TEXTBOXコンパクト化 + 間違い2回でキック
+-- スタイリッシュUI + TEXTBOX改善 + 間違い2回でキック + マスターキー + 複数ユーザー対応
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
+--==============================
+-- GUI作成
+--==============================
 local gui = Instance.new("ScreenGui")
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
---==============================
--- フレーム
---==============================
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 300, 0, 160)
 frame.Position = UDim2.new(0.5, -150, 0.5, -80)
@@ -29,11 +29,12 @@ title.TextColor3 = Color3.fromRGB(255,255,255)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 26
 
--- TEXTBOX（コンパクトに）
+-- TEXTBOX（コンパクト＆初期文字なし）
 local textBox = Instance.new("TextBox", frame)
 textBox.Size = UDim2.new(0.7,0,0,30)
 textBox.Position = UDim2.new(0.15,0,0,55)
-textBox.PlaceholderText = "Enter Key"
+textBox.PlaceholderText = "Enter Key"  -- 説明用文字
+textBox.Text = ""                        -- 初期テキスト空に設定
 textBox.ClearTextOnFocus = false
 textBox.TextScaled = true
 textBox.TextColor3 = Color3.fromRGB(255,255,255)
@@ -102,6 +103,7 @@ local function checkKey()
         end
     end
 
+    -- 間違い処理
     failCount = failCount + 1
     if failCount >= 2 then
         player:Kick("Wrong key entered 2 times")
@@ -111,6 +113,9 @@ local function checkKey()
     end
 end
 
+--==============================
+-- 接続
+--==============================
 button.MouseButton1Click:Connect(checkKey)
 textBox.FocusLost:Connect(function(enterPressed)
     if enterPressed then
@@ -118,6 +123,9 @@ textBox.FocusLost:Connect(function(enterPressed)
     end
 end)
 
+--==============================
+-- 待機
+--==============================
 repeat task.wait() until KEY_OK
 
 return true
