@@ -1,0 +1,184 @@
+--==============================
+-- KEY SYSTEM
+--==============================
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui")
+gui.ResetOnSpawn = false
+gui.Parent = player.PlayerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,300,0,150)
+frame.Position = UDim2.new(0.5,-150,0.5,-75)
+frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+frame.Parent = gui
+Instance.new("UICorner",frame)
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,40)
+title.BackgroundTransparency = 1
+title.Text = "KEY SYSTEM"
+title.TextColor3 = Color3.new(1,1,1)
+title.Parent = frame
+
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(0.8,0,0,35)
+box.Position = UDim2.new(0.1,0,0.4,0)
+box.PlaceholderText = "Enter Key"
+box.Parent = frame
+
+local btn = Instance.new("TextButton")
+btn.Size = UDim2.new(0.8,0,0,35)
+btn.Position = UDim2.new(0.1,0,0.7,0)
+btn.Text = "ENTER"
+btn.Parent = frame
+
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1,0,0,20)
+label.Position = UDim2.new(0,0,1,0)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.fromRGB(255,80,80)
+label.Parent = frame
+
+local KEY = "satoreti8033"
+local KEY_OK = false
+
+local function check()
+
+	if box.Text == KEY then
+
+		KEY_OK = true
+		gui:Destroy()
+
+	else
+
+		label.Text = "Wrong Key"
+
+	end
+
+end
+
+btn.MouseButton1Click:Connect(check)
+
+box.FocusLost:Connect(function(enter)
+	if enter then
+		check()
+	end
+end)
+
+repeat task.wait() until KEY_OK
+
+--================================================
+-- ここから後ろが本スクリプト
+--================================================
+
+
+-- ==========================================
+-- PVP INVIS + FINAL Z (Camera Fix)
+-- HP AUTO INVIS
+-- ==========================================
+
+repeat task.wait() until game.Players.LocalPlayer
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+--==============================
+-- 設定
+--==============================
+
+local pvpEnabled = false
+local settings = {FinalZ = false}
+
+local FakeCharacter = nil
+
+local char
+local root
+local hum
+
+-- FinalZ
+local HIDE_Y = -199996.48
+local IsIsolating = false
+local lastHealths = {}
+local sZAttackActive = false
+
+--==============================
+-- キャラ取得
+--==============================
+
+local function setup()
+
+	char = player.Character or player.CharacterAdded:Wait()
+	root = char:WaitForChild("HumanoidRootPart")
+	hum = char:WaitForChild("Humanoid")
+
+	hum.Died:Connect(function()
+		FinalZ_Reset()
+	end)
+
+end
+
+setup()
+
+--==============================
+-- FakeCharacter
+--==============================
+
+local function createFake()
+
+	if FakeCharacter then
+		FakeCharacter:Destroy()
+	end
+
+	char.Archivable = true
+	FakeCharacter = char:Clone()
+	FakeCharacter.Parent = workspace
+
+	for _,v in pairs(FakeCharacter:GetDescendants()) do
+		if v:IsA("BasePart") then
+			v.Transparency = 1
+			v.CanCollide = false
+		elseif v:IsA("Decal") then
+			v.Transparency = 1
+		end
+	end
+
+	FakeCharacter.HumanoidRootPart.CFrame = root.CFrame
+
+	workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+	workspace.CurrentCamera.CameraSubject = FakeCharacter.Humanoid
+
+end
+
+--==============================
+-- PVP
+--==============================
+
+local function setPVP(state)
+
+	pvpEnabled = state
+
+	if state then
+		createFake()
+	else
+
+		if FakeCharacter then
+			FakeCharacter:Destroy()
+			FakeCharacter = nil
+		end
+
+		if hum then
+			workspace.CurrentCamera.CameraType = Enum.CameraType.Custom
+			workspace.CurrentCamera.CameraSubject = hum
+		end
+
+	end
+
+end
+
+--（この後はあなたのスクリプトをそのまま続けてOK）
