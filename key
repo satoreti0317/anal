@@ -1,45 +1,49 @@
 -- key.lua
--- TEXTBOX削除版 + ボタンだけで認証 + マスターキー + フォルダ管理
+-- スタイリッシュUI + TEXTBOXコンパクト化 + 間違い2回でキック
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
---==============================
--- GUI作成
---==============================
 local gui = Instance.new("ScreenGui")
 gui.ResetOnSpawn = false
 gui.Parent = player:WaitForChild("PlayerGui")
 
+--==============================
+-- フレーム
+--==============================
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 300, 0, 150)
-frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+frame.Size = UDim2.new(0, 300, 0, 160)
+frame.Position = UDim2.new(0.5, -150, 0.5, -80)
 frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 frame.BackgroundTransparency = 0.2
 frame.BorderSizePixel = 0
 frame.AnchorPoint = Vector2.new(0.5,0.5)
 Instance.new("UICorner", frame)
 
+-- タイトル
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1,0,0,40)
 title.BackgroundTransparency = 1
 title.Text = "🔑 KEY SYSTEM"
 title.TextColor3 = Color3.fromRGB(255,255,255)
 title.Font = Enum.Font.GothamBold
-title.TextSize = 28
+title.TextSize = 26
 
-local infoLabel = Instance.new("TextLabel", frame)
-infoLabel.Size = UDim2.new(1,0,0,20)
-infoLabel.Position = UDim2.new(0,0,0.8,0)
-infoLabel.BackgroundTransparency = 1
-infoLabel.TextColor3 = Color3.fromRGB(255,100,100)
-infoLabel.Font = Enum.Font.Gotham
-infoLabel.TextSize = 18
-infoLabel.Text = ""
+-- TEXTBOX（コンパクトに）
+local textBox = Instance.new("TextBox", frame)
+textBox.Size = UDim2.new(0.7,0,0,30)
+textBox.Position = UDim2.new(0.15,0,0,55)
+textBox.PlaceholderText = "Enter Key"
+textBox.ClearTextOnFocus = false
+textBox.TextScaled = true
+textBox.TextColor3 = Color3.fromRGB(255,255,255)
+textBox.BackgroundColor3 = Color3.fromRGB(60,60,60)
+Instance.new("UICorner", textBox)
 
+-- ENTERボタン
 local button = Instance.new("TextButton", frame)
-button.Size = UDim2.new(0.6,0,0,50)
-button.Position = UDim2.new(0.2,0,0.5,0)
+button.Size = UDim2.new(0.7,0,0,35)
+button.Position = UDim2.new(0.15,0,0,95)
 button.Text = "ENTER"
 button.TextColor3 = Color3.fromRGB(255,255,255)
 button.BackgroundColor3 = Color3.fromRGB(0,170,255)
@@ -47,10 +51,20 @@ button.Font = Enum.Font.GothamBold
 button.TextScaled = true
 Instance.new("UICorner", button)
 
+-- 情報ラベル
+local infoLabel = Instance.new("TextLabel", frame)
+infoLabel.Size = UDim2.new(1,0,0,20)
+infoLabel.Position = UDim2.new(0,0,0,140)
+infoLabel.BackgroundTransparency = 1
+infoLabel.TextColor3 = Color3.fromRGB(255,100,100)
+infoLabel.Font = Enum.Font.Gotham
+infoLabel.TextSize = 18
+infoLabel.Text = ""
+
 --==============================
 -- 認証情報
 --==============================
-local MASTER_KEY = "satoretikamisama"
+local MASTER_KEY = "MASTERKEY123"
 
 local USERS = {
     SATORETI = {
@@ -70,33 +84,39 @@ local failCount = 0
 -- 認証関数
 --==============================
 local function checkKey()
-    -- ユーザーIDに紐づくキーを自動取得
-    local validKeys = {}
-    for name,data in pairs(USERS) do
-        if table.find(data.UserIds, player.UserId) then
-            validKeys = data.Keys
-            break
-        end
-    end
+    local input = textBox.Text
 
-    -- 認証判定
-    if MASTER_KEY or #validKeys>0 then
+    if input == MASTER_KEY then
         KEY_OK = true
-        infoLabel.Text = "Access Granted"
+        infoLabel.Text = "MASTER KEY - Access Granted"
         gui:Destroy()
         return
     end
 
-    -- 見つからなければ失敗
+    for name, data in pairs(USERS) do
+        if table.find(data.Keys, input) and table.find(data.UserIds, player.UserId) then
+            KEY_OK = true
+            infoLabel.Text = "User "..name.." - Access Granted"
+            gui:Destroy()
+            return
+        end
+    end
+
     failCount = failCount + 1
-    if failCount >=2 then
-        player:Kick("Unauthorized access (2 failed attempts)")
+    if failCount >= 2 then
+        player:Kick("Wrong key entered 2 times")
     else
-        infoLabel.Text = "Unauthorized - Try Again"
+        infoLabel.Text = "Wrong Key or Not Authorized"
+        textBox.Text = ""
     end
 end
 
 button.MouseButton1Click:Connect(checkKey)
+textBox.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        checkKey()
+    end
+end)
 
 repeat task.wait() until KEY_OK
 
