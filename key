@@ -1,5 +1,5 @@
 -- key.lua
--- スタイリッシュUI + TEXTBOX改善 + 間違い2回でキック + マスターキー + 複数ユーザー対応
+-- スタイリッシュUI + TEXTBOX初期文字消去 + 間違い2回でキック + マスターキー + 複数ユーザー対応
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
@@ -29,12 +29,12 @@ title.TextColor3 = Color3.fromRGB(255,255,255)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 26
 
--- TEXTBOX（コンパクト＆初期文字なし）
+-- TEXTBOX（初期文字を消去）
 local textBox = Instance.new("TextBox", frame)
 textBox.Size = UDim2.new(0.7,0,0,30)
 textBox.Position = UDim2.new(0.15,0,0,55)
-textBox.PlaceholderText = "Enter Key"  -- 説明用文字
-textBox.Text = ""                        -- 初期テキスト空に設定
+textBox.PlaceholderText = "Enter Key"  -- 説明文字のみ
+textBox.Text = ""                        -- 初期文字を空に設定
 textBox.ClearTextOnFocus = false
 textBox.TextScaled = true
 textBox.TextColor3 = Color3.fromRGB(255,255,255)
@@ -109,7 +109,7 @@ local function checkKey()
         player:Kick("Wrong key entered 2 times")
     else
         infoLabel.Text = "Wrong Key or Not Authorized"
-        textBox.Text = ""
+        textBox.Text = ""  -- 入力リセット
     end
 end
 
